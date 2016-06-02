@@ -1,0 +1,56 @@
+{
+  "name": "vscode-hexdump",
+  "displayName": "hexdump for VSCode",
+  "description": "Display a specified file in hexadecimal",
+  "version": "0.0.1",
+  "publisher": "slevesque",
+  "license": "LICENSE.md",
+  "icon": "icon.png",
+  "bugs": {
+    "url": "https://github.com/stef-levesque/vscode-hexdump/issues"
+  },
+  "homepage": "https://github.com/stef-levesque/vscode-hexdump/blob/master/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stef-levesque/vscode-hexdump.git"
+  },
+  "galleryBanner": {
+    "color": "#5c2d91",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "keywords": [
+    "vscode",
+    "hexdump",
+    "hexadecimal"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:hexdump.hexdumpFile"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "hexdump.hexdumpFile",
+        "title": "Show hexdump for file"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "typescript": "^1.8.5",
+    "vscode": "^0.11.0"
+  },
+  "dependencies": {
+    "hexdump-nodejs": "^0.1.0"
+  }
+}
