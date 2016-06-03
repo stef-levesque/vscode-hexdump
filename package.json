@@ -38,6 +38,22 @@
       {
         "command": "hexdump.hexdumpFile",
         "title": "Show hexdump for file"
+      },
+      {
+        "command": "hexdump.editValue",
+        "title": "Edit the value under the cursor"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "ctrl+shift+alt+h",
+        "mac": "cmd+shift+alt+h",
+        "command": "hexdump.hexdumpFile"
+      },
+      {
+        "key": "shift+enter",
+        "command": "hexdump.editValue",
+        "when": "editorTextFocus"
       }
     ]
   },

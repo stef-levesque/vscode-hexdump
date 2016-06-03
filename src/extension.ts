@@ -1,6 +1,5 @@
 'use strict';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
@@ -9,10 +8,32 @@ var hexdump = require('hexdump-nodejs');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+    
+    var dict = [];
+    function getBuffer(filepath) : Buffer {
+        if (dict[filepath]) {
+            return dict[filepath];
+        }
+        
+        let buf = fs.readFileSync(filepath);
+        dict[filepath] = buf;
+        
+        return buf;
+    }
 
     class HexdumpContentProvider implements vscode.TextDocumentContentProvider {
+        private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
+        
         public provideTextDocumentContent(uri: vscode.Uri): string {
-            return hexdump(fs.readFileSync(uri.fsPath));
+            return hexdump(getBuffer(uri.fsPath));
+        }
+        
+        get onDidChange(): vscode.Event<vscode.Uri> {
+            return this._onDidChange.event;
+        }
+        
+        public update(uri: vscode.Uri) {
+            this._onDidChange.fire(uri);
         }
     }
 
@@ -24,7 +45,6 @@ export function activate(context: vscode.ExtensionContext) {
         // Display a message box to the user
         var wpath = vscode.workspace.rootPath;
 
-        // ask the PROJECT NAME (suggest the )
         var ibo = <vscode.InputBoxOptions>{
             prompt: "File path",
             placeHolder: "filepath",
@@ -47,8 +67,51 @@ export function activate(context: vscode.ExtensionContext) {
             });
         });
     });
+    
+    let disposable2 = vscode.commands.registerCommand('hexdump.editValue', () => {
+        let e = vscode.window.activeTextEditor;
+        let s = e.selection.start;
+        let d = e.document;
+        
+        // check if within hex buffer section
+        if (s.line < 1 || s.character < 10 || s.character > 57) {
+            return;
+        }
+        
+        var offset = (s.line - 1) * 16;
+        offset += Math.floor( (s.character - 10) / 3 );
+        
+        var buf = getBuffer(d.uri.fsPath);
+        
+        if (offset >= buf.length) {
+            return;
+        }
+        
+        var ibo = <vscode.InputBoxOptions>{
+            prompt: "Enter value in hexadecimal",
+            placeHolder: "value",
+            value: buf[offset].toString(16)
+        }
+        
+        vscode.window.showInputBox(ibo).then(value => {
+            if (typeof value == 'undefined') {
+                return;
+            }
+            let number = parseInt(value, 16);
+            if (isNaN(number)) {
+                return;
+            }
+        
+            buf[offset] = number;
+        
+            provider.update(d.uri);
+            console.log(offset);
+        });
+    });
+    
+    
 
-    context.subscriptions.push(disposable, registration);
+    context.subscriptions.push(disposable2, disposable, registration);
 }
 
 // this method is called when your extension is deactivated
