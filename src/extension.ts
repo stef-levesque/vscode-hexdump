@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 
 var hexdump = require('hexdump-nodejs');
+var sprinf = require('sprintf-js').sprintf;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -90,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
         var ibo = <vscode.InputBoxOptions>{
             prompt: "Enter value in hexadecimal",
             placeHolder: "value",
-            value: buf[offset].toString(16)
+            value: sprinf('%02X', buf[offset])
         }
         
         vscode.window.showInputBox(ibo).then(value => {

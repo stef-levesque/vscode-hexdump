@@ -67,6 +67,7 @@
     "vscode": "^0.11.0"
   },
   "dependencies": {
-    "hexdump-nodejs": "^0.1.0"
+    "hexdump-nodejs": "^0.1.0",
+    "sprintf-js": "^1.0.3"
   }
 }
