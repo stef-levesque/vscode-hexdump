@@ -38,35 +38,44 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
+    function hexdumpFile(filePath) {
+        if (typeof filePath == 'undefined') {
+            return;
+        }
+        if (!fs.existsSync(filePath)) {
+            return;
+        }
+
+        let fileUri = vscode.Uri.file(filePath);
+        let hexUri = vscode.Uri.parse( fileUri.toString().replace('file:', 'hexdump:') );
+
+        vscode.workspace.openTextDocument(hexUri).then(doc => {
+            vscode.window.showTextDocument(doc);
+        });
+
+    }
+
     let provider = new HexdumpContentProvider();
     let registration = vscode.workspace.registerTextDocumentContentProvider('hexdump', provider);
 
 
-    let disposable = vscode.commands.registerCommand('hexdump.hexdumpFile', () => {
-        // Display a message box to the user
-        var wpath = vscode.workspace.rootPath;
+    let disposable = vscode.commands.registerCommand('hexdump.hexdumpFile', (fileUri) => {
+        if (fileUri) {
+            hexdumpFile(fileUri.fsPath);
+        } else {
+            // Display a message box to the user
+            var wpath = vscode.workspace.rootPath;
 
-        var ibo = <vscode.InputBoxOptions>{
-            prompt: "File path",
-            placeHolder: "filepath",
-            value: wpath
-        }
-
-        vscode.window.showInputBox(ibo).then(filePath => {
-            if (typeof filePath == 'undefined') {
-                return;
-            }
-            if (!fs.existsSync(filePath)) {
-                return;
+            var ibo = <vscode.InputBoxOptions>{
+                prompt: "File path",
+                placeHolder: "filepath",
+                value: wpath
             }
 
-            let fileUri = vscode.Uri.file(filePath);
-            let hexUri = vscode.Uri.parse( fileUri.toString().replace('file:', 'hexdump:') );
-
-            vscode.workspace.openTextDocument(hexUri).then(doc => {
-                vscode.window.showTextDocument(doc);
+            vscode.window.showInputBox(ibo).then(filePath => {
+                hexdumpFile(filePath);
             });
-        });
+        }
     });
     
     let disposable2 = vscode.commands.registerCommand('hexdump.editValue', () => {
@@ -87,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (offset >= buf.length) {
             return;
         }
-        
+
         var ibo = <vscode.InputBoxOptions>{
             prompt: "Enter value in hexadecimal",
             placeHolder: "value",

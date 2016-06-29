@@ -41,9 +41,23 @@
       },
       {
         "command": "hexdump.editValue",
-        "title": "Edit the value under the cursor"
+        "title": "Edit the value under the cursor",
+        "when": "editorTextFocus"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "hexdump.hexdumpFile"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "hexdump.editValue",
+          "when": "editorTextFocus"
+        }
+      ]
+    },
     "keybindings": [
       {
         "key": "ctrl+shift+alt+h",
