@@ -34,6 +34,19 @@
   ],
   "main": "./out/src/extension",
   "contributes": {
+    "languages": [
+      {
+        "id": "hexdump",
+        "extensions": [".hexdump"]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "hexdump",
+        "scopeName": "source.hexdump",
+        "path": "./syntaxes/hexdump.tmLanguage"
+      }
+    ],  
     "commands": [
       {
         "command": "hexdump.hexdumpFile",
@@ -53,8 +66,8 @@
       ],
       "editor/context": [
         {
-          "command": "hexdump.editValue",
-          "when": "editorTextFocus"
+          "when": "editorLangId == hexdump",
+          "command": "hexdump.editValue"
         }
       ]
     },

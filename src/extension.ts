@@ -11,7 +11,9 @@ var sprinf = require('sprintf-js').sprintf;
 export function activate(context: vscode.ExtensionContext) {
     
     var dict = [];
-    function getBuffer(filepath) : Buffer {
+    function getBuffer(uri: vscode.Uri) : Buffer {
+        // remove the 'hexdump' extension
+        let filepath = uri.fsPath.slice(0, -8);
         if (dict[filepath]) {
             return dict[filepath];
         }
@@ -24,9 +26,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     class HexdumpContentProvider implements vscode.TextDocumentContentProvider {
         private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
-        
+
         public provideTextDocumentContent(uri: vscode.Uri): string {
-            return hexdump(getBuffer(uri.fsPath));
+            return hexdump(getBuffer(uri));
         }
         
         get onDidChange(): vscode.Event<vscode.Uri> {
@@ -47,7 +49,8 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         let fileUri = vscode.Uri.file(filePath);
-        let hexUri = vscode.Uri.parse( fileUri.toString().replace('file:', 'hexdump:') );
+        // add 'hexdump' extension to assign an editorLangId
+        let hexUri = vscode.Uri.parse( fileUri.toString().replace('file:', 'hexdump:').concat('.hexdump') );
 
         vscode.workspace.openTextDocument(hexUri).then(doc => {
             vscode.window.showTextDocument(doc);
@@ -80,10 +83,14 @@ export function activate(context: vscode.ExtensionContext) {
     
     let disposable2 = vscode.commands.registerCommand('hexdump.editValue', () => {
         let e = vscode.window.activeTextEditor;
-        let s = e.selection.start;
         let d = e.document;
+        // check if hexdump document
+        if (d.uri.scheme !== 'hexdump') {
+            return;
+        }
         
         // check if within hex buffer section
+        let s = e.selection.start;
         if (s.line < 1 || s.character < 10 || s.character > 57) {
             return;
         }
@@ -91,7 +98,7 @@ export function activate(context: vscode.ExtensionContext) {
         var offset = (s.line - 1) * 16;
         offset += Math.floor( (s.character - 10) / 3 );
         
-        var buf = getBuffer(d.uri.fsPath);
+        var buf = getBuffer(d.uri);
         
         if (offset >= buf.length) {
             return;
@@ -115,7 +122,6 @@ export function activate(context: vscode.ExtensionContext) {
             buf[offset] = number;
         
             provider.update(d.uri);
-            console.log(offset);
         });
     });
     
