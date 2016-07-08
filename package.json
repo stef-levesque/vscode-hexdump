@@ -30,7 +30,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:hexdump.hexdumpFile"
+    "onCommand:hexdump.hexdumpFile",
+    "onCommand:hexdump.editValue",
+    "onCommand:hexdump.gotoAddress"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -55,7 +57,12 @@
       {
         "command": "hexdump.editValue",
         "title": "Edit the value under the cursor",
-        "when": "editorTextFocus"
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.gotoAddress",
+        "title": "Go to a specific address",
+        "when": "editorLangId == hexdump"
       }
     ],
     "menus": {
@@ -68,6 +75,10 @@
         {
           "when": "editorLangId == hexdump",
           "command": "hexdump.editValue"
+        },
+        {
+          "when": "editorLangId == hexdump",
+          "command": "hexdump.gotoAddress"
         }
       ]
     },
@@ -81,6 +92,11 @@
         "key": "shift+enter",
         "command": "hexdump.editValue",
         "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+g",
+        "command": "hexdump.gotoAddress",
+        "when": "editorLangId == hexdump"
       }
     ]
   },

@@ -58,6 +58,25 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
 
+    function getOffset(pos: vscode.Position) : number {
+        // check if within hex buffer section
+        if (pos.line < 1 || pos.character < 10 || pos.character > 57) {
+            return;
+        }
+        
+        var offset = (pos.line - 1) * 16;
+        offset += Math.floor( (pos.character - 10) / 3 );
+
+        return offset;
+    }
+
+    function getPosition(offset: number) : vscode.Position {
+        let row = Math.floor(offset / 16);
+        let column = offset % 16;
+
+        return new vscode.Position(1 + row, 10 + column * 3);
+    }
+
     let provider = new HexdumpContentProvider();
     let registration = vscode.workspace.registerTextDocumentContentProvider('hexdump', provider);
 
@@ -89,15 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         
-        // check if within hex buffer section
-        let s = e.selection.start;
-        if (s.line < 1 || s.character < 10 || s.character > 57) {
-            return;
-        }
-        
-        var offset = (s.line - 1) * 16;
-        offset += Math.floor( (s.character - 10) / 3 );
-        
+        let offset = getOffset(e.selection.start);        
         var buf = getBuffer(d.uri);
         
         if (offset >= buf.length) {
@@ -125,9 +136,43 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
     
-    
+    let disposable3 = vscode.commands.registerCommand('hexdump.gotoAddress', () => {
+        let e = vscode.window.activeTextEditor;
+        let d = e.document;
+        // check if hexdump document
+        if (d.uri.scheme !== 'hexdump') {
+            return;
+        }
 
-    context.subscriptions.push(disposable2, disposable, registration);
+        var offset = getOffset(e.selection.start);
+        if (typeof offset == 'undefined') {
+            offset = 0;
+        }
+
+        var ibo = <vscode.InputBoxOptions>{
+            prompt: "Enter value in hexadecimal",
+            placeHolder: "address",
+            value: sprinf('%08X', offset)
+        }
+        
+        vscode.window.showInputBox(ibo).then(value => {
+            if (typeof value == 'undefined') {
+                return;
+            }
+            let offset = parseInt(value, 16);
+            if (isNaN(offset)) {
+                return;
+            }
+
+            var pos = e.document.validatePosition( getPosition(offset) );
+            e.selection = new vscode.Selection(pos, pos);
+            e.revealRange(new vscode.Range(pos, pos));
+
+        });
+    });
+
+
+    context.subscriptions.push(disposable3, disposable2, disposable, registration);
 }
 
 // this method is called when your extension is deactivated
