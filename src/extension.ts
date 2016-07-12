@@ -108,7 +108,8 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         
-        let offset = getOffset(e.selection.start);        
+        let pos = e.selection.start;
+        let offset = getOffset(pos);        
         var buf = getBuffer(d.uri);
         
         if (offset >= buf.length) {
@@ -133,6 +134,8 @@ export function activate(context: vscode.ExtensionContext) {
             buf[offset] = number;
         
             provider.update(d.uri);
+
+            e.selection = new vscode.Selection(pos, pos);
         });
     });
     
