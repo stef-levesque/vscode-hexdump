@@ -2,6 +2,7 @@
 
 [![GitHub issues](https://img.shields.io/github/issues/stef-levesque/vscode-hexdump.svg)](https://github.com/stef-levesque/vscode-hexdump/issues)
 [![GitHub license button](https://img.shields.io/github/license/stef-levesque/vscode-hexdump.svg)](https://github.com/stef-levesque/vscode-hexdump/blob/master/LICENSE.md)
+[![VS Code marketplace button](http://vsmarketplacebadge.apphb.com/installs/slevesque.vscode-hexdump.svg)](https://marketplace.visualstudio.com/items?itemName=slevesque.vscode-hexdump)
 
 hexdump for Visual Studio Code
 
@@ -11,11 +12,14 @@ Display a specified file in hexadecimal
 
 ## Commands
 
-* `hexdump.hexdumpFile` Show hexdump for file
+* `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show hexdump for file
+* `editValue` (`shift+enter`) Edit the value under the cursor
+* `gotoAddress` (`ctrl+g`) Go to a specific address
+* `exportToFile` (`ctrl+s`, `cmd+s`) Export to a binary file
 
 ## Installation
 
-1. Install *Visual Studio Code* (0.10.1 or higher)
+1. Install *Visual Studio Code* (1.3.0 or higher)
 2. Launch *Code*
 3. From the command palette `Ctrl-Shift-P` (Windows, Linux) or `Cmd-Shift-P` (OSX)
 4. Select `Install Extension`
@@ -32,7 +36,7 @@ Display a specified file in hexadecimal
 
 ## Requirements
 
-Visual Studio Code v0.10.x (November 2015)
+Visual Studio Code v1.3.0
 
 ## Credits
 
@@ -43,3 +47,23 @@ Visual Studio Code v0.10.x (November 2015)
 ## License
 
 [MIT](LICENSE.md)
+
+---
+
+## Changelog
+
+### [0.0.2] 2016-07-12
+
+* Edit value under cursor
+* Syntax colorization
+* Commands in context menus
+* Go to address
+* Export to file
+
+### [0.0.1] 2016-06-01
+
+* Display a specified file in hexadecimal
+
+
+[0.0.2]: https://github.com/stef-levesque/vscode-hexdump/compare/ba05da59122e25f39fbcaa39b82e98b7f1f3022e...8cfee8b0398313ca58120ec9d19c38c384042536
+[0.0.1]: https://github.com/stef-levesque/vscode-hexdump/commit/ba05da59122e25f39fbcaa39b82e98b7f1f3022e

@@ -2,7 +2,7 @@
   "name": "vscode-hexdump",
   "displayName": "hexdump for VSCode",
   "description": "Display a specified file in hexadecimal",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "slevesque",
   "license": "LICENSE.md",
   "icon": "icon.png",
@@ -67,7 +67,7 @@
       },
       {
         "command": "hexdump.exportToFile",
-        "title": "Export to a binary file.",
+        "title": "Export to a binary file",
         "when": "editorLangId == hexdump"
       }
     ],
