@@ -32,7 +32,8 @@
   "activationEvents": [
     "onCommand:hexdump.hexdumpFile",
     "onCommand:hexdump.editValue",
-    "onCommand:hexdump.gotoAddress"
+    "onCommand:hexdump.gotoAddress",
+    "onCommand:hexdump.exportToFile"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -63,6 +64,11 @@
         "command": "hexdump.gotoAddress",
         "title": "Go to a specific address",
         "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.exportToFile",
+        "title": "Export to a binary file.",
+        "when": "editorLangId == hexdump"
       }
     ],
     "menus": {
@@ -79,6 +85,10 @@
         {
           "when": "editorLangId == hexdump",
           "command": "hexdump.gotoAddress"
+        },
+        {
+          "when": "editorLangId == hexdump",
+          "command": "hexdump.exportToFile"
         }
       ]
     },
@@ -96,6 +106,12 @@
       {
         "key": "ctrl+g",
         "command": "hexdump.gotoAddress",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "key": "ctrl+s",
+        "mac": "cmd+s",
+        "command": "hexdump.exportToFile",
         "when": "editorLangId == hexdump"
       }
     ]

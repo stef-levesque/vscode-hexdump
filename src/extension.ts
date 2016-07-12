@@ -171,8 +171,36 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
+    let disposable4 = vscode.commands.registerCommand('hexdump.exportToFile', () => {
+        let e = vscode.window.activeTextEditor;
+        let d = e.document;
+        // check if hexdump document
+        if (d.uri.scheme !== 'hexdump') {
+            return;
+        }
 
-    context.subscriptions.push(disposable3, disposable2, disposable, registration);
+        let filepath = d.uri.fsPath.slice(0, -8);
+
+        var ibo = <vscode.InputBoxOptions>{
+            prompt: "Export to binary file",
+            placeHolder: "file path",
+            value: filepath
+        }
+
+        vscode.window.showInputBox(ibo).then(filePath => {
+            var buf = getBuffer(d.uri);
+            fs.writeFile(filePath, buf, (err) => {
+                if(err) {
+                    return vscode.window.setStatusBarMessage('Hexdump: ERROR ' + err, 3000);
+                }
+
+                vscode.window.setStatusBarMessage('Hexdump: exported to ' + filePath, 3000);
+            });
+        });
+
+    });
+
+    context.subscriptions.push(disposable4, disposable3, disposable2, disposable, registration);
 }
 
 // this method is called when your extension is deactivated
