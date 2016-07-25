@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 
 var hexdump = require('hexdump-nodejs');
-var sprinf = require('sprintf-js').sprintf;
+var sprintf = require('sprintf-js').sprintf;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -23,6 +23,48 @@ export function activate(context: vscode.ExtensionContext) {
         
         return buf;
     }
+
+    function toArrayBuffer(buffer: Buffer, offset: number, length: number): ArrayBuffer {
+        var ab = new ArrayBuffer(buffer.length);
+        var view = new Uint8Array(ab);
+        for (var i = 0; i < buffer.length; ++i) {
+            view[i] = buffer[offset + i];
+        }
+        return ab;
+    }
+
+    vscode.languages.registerHoverProvider('hexdump', {
+        provideHover(document, position, token) {
+            let offset = getOffset(position);
+            if (typeof offset == 'undefined') {
+                return;
+            }
+
+            var content: string = 'Hex Inspector\n';
+            content += 'Address: 0x' + sprintf('%08X', offset) + '\n';
+
+            let sel = vscode.window.activeTextEditor.selection;
+            if (sel.contains(position)) {
+                let start = getOffset(sel.start);
+                let end = getOffset(sel.end);
+                content += 'Selection: 0x' + sprintf('%08X', start) + ' - 0x' + sprintf('%08X', end) + '\n';
+            }
+
+            let buf = getBuffer(document.uri);
+            let arrbuf = toArrayBuffer(buf, offset, 8);
+            var view = new DataView(arrbuf);
+
+            content += 'Int8:   ' + sprintf('%12d', view.getInt8(0)) + '\t';
+            content += 'Uint8:  ' + sprintf('%12d', view.getUint8(0)) + '\n';
+            content += 'Int16:  ' + sprintf('%12d', view.getInt16(0)) + '\t';
+            content += 'Uint16: ' + sprintf('%12d', view.getUint16(0)) + '\n';
+            content += 'Int32:  ' + sprintf('%12d', view.getInt32(0)) + '\t';
+            content += 'Uint32: ' + sprintf('%12d', view.getUint32(0)) + '\n';
+            content += 'Float32: ' + sprintf('%f', view.getFloat32(0)) + '\n';
+            content += 'Float64: ' + sprintf('%f', view.getFloat64(0)) + '\n';
+            return new vscode.Hover(content);
+        }
+    });
 
     class HexdumpContentProvider implements vscode.TextDocumentContentProvider {
         private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
@@ -119,7 +161,7 @@ export function activate(context: vscode.ExtensionContext) {
         var ibo = <vscode.InputBoxOptions>{
             prompt: "Enter value in hexadecimal",
             placeHolder: "value",
-            value: sprinf('%02X', buf[offset])
+            value: sprintf('%02X', buf[offset])
         }
         
         vscode.window.showInputBox(ibo).then(value => {
@@ -155,7 +197,7 @@ export function activate(context: vscode.ExtensionContext) {
         var ibo = <vscode.InputBoxOptions>{
             prompt: "Enter value in hexadecimal",
             placeHolder: "address",
-            value: sprinf('%08X', offset)
+            value: sprintf('%08X', offset)
         }
         
         vscode.window.showInputBox(ibo).then(value => {
