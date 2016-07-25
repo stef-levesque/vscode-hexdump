@@ -10,6 +10,20 @@ var sprintf = require('sprintf-js').sprintf;
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
     
+    let littleEndian = vscode.workspace.getConfiguration('hexdump').get('littleEndian', true);
+
+    var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+    statusBarItem.text = 'HEX';
+    statusBarItem.tooltip = littleEndian ? 'Little Endian' : 'Big Endian';
+
+    vscode.window.onDidChangeActiveTextEditor((e) => {
+        if (e.document.languageId === 'hexdump') {
+            statusBarItem.show();
+        } else {
+            statusBarItem.hide();
+        }
+    });
+
     var dict = [];
     function getBuffer(uri: vscode.Uri) : Buffer {
         // remove the 'hexdump' extension
@@ -56,12 +70,12 @@ export function activate(context: vscode.ExtensionContext) {
 
             content += 'Int8:   ' + sprintf('%12d', view.getInt8(0)) + '\t';
             content += 'Uint8:  ' + sprintf('%12d', view.getUint8(0)) + '\n';
-            content += 'Int16:  ' + sprintf('%12d', view.getInt16(0)) + '\t';
-            content += 'Uint16: ' + sprintf('%12d', view.getUint16(0)) + '\n';
-            content += 'Int32:  ' + sprintf('%12d', view.getInt32(0)) + '\t';
-            content += 'Uint32: ' + sprintf('%12d', view.getUint32(0)) + '\n';
-            content += 'Float32: ' + sprintf('%f', view.getFloat32(0)) + '\n';
-            content += 'Float64: ' + sprintf('%f', view.getFloat64(0)) + '\n';
+            content += 'Int16:  ' + sprintf('%12d', view.getInt16(0, littleEndian)) + '\t';
+            content += 'Uint16: ' + sprintf('%12d', view.getUint16(0, littleEndian)) + '\n';
+            content += 'Int32:  ' + sprintf('%12d', view.getInt32(0, littleEndian)) + '\t';
+            content += 'Uint32: ' + sprintf('%12d', view.getUint32(0, littleEndian)) + '\n';
+            content += 'Float32: ' + sprintf('%f', view.getFloat32(0, littleEndian)) + '\n';
+            content += 'Float64: ' + sprintf('%f', view.getFloat64(0, littleEndian)) + '\n';
             return new vscode.Hover(content);
         }
     });
