@@ -138,7 +138,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     let disposable = vscode.commands.registerCommand('hexdump.hexdumpFile', (fileUri) => {
-        if (fileUri) {
+        if (typeof fileUri != 'undefined' && fileUri instanceof vscode.Uri) {
             hexdumpFile(fileUri.fsPath);
         } else {
             // Display a message box to the user
