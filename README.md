@@ -52,6 +52,12 @@ Visual Studio Code v1.3.0
 
 ## Changelog
 
+### [0.1.0] 2016-08-17
+
+* Hover to display data values
+* Command to toggle between little and big endianness
+* Status bar to indicate current endianness
+
 ### [0.0.2] 2016-07-12
 
 * Edit value under cursor
@@ -64,6 +70,6 @@ Visual Studio Code v1.3.0
 
 * Display a specified file in hexadecimal
 
-
+[0.1.0]: https://github.com/stef-levesque/vscode-hexdump/compare/47ae52ae080a531910c1fb9da736f1194d9af5ac...75b1bb35a09a0f87de464a74a51e96099ff90225
 [0.0.2]: https://github.com/stef-levesque/vscode-hexdump/compare/ba05da59122e25f39fbcaa39b82e98b7f1f3022e...8cfee8b0398313ca58120ec9d19c38c384042536
 [0.0.1]: https://github.com/stef-levesque/vscode-hexdump/commit/ba05da59122e25f39fbcaa39b82e98b7f1f3022e
