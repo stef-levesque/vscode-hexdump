@@ -30,10 +30,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:hexdump.hexdumpFile",
-    "onCommand:hexdump.editValue",
-    "onCommand:hexdump.gotoAddress",
-    "onCommand:hexdump.exportToFile"
+    "onCommand:hexdump.hexdumpFile"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -69,6 +66,11 @@
         "command": "hexdump.exportToFile",
         "title": "Export to a binary file",
         "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.toggleEndian",
+        "title": "Toggle between little and big endian",
+        "when": "editorLangId == hexdump"
       }
     ],
     "menus": {
@@ -89,6 +91,10 @@
         {
           "when": "editorLangId == hexdump",
           "command": "hexdump.exportToFile"
+        },
+        {
+          "when": "editorLangId == hexdump",
+          "command": "hexdump.toggleEndian"
         }
       ]
     },
@@ -112,6 +118,12 @@
         "key": "ctrl+s",
         "mac": "cmd+s",
         "command": "hexdump.exportToFile",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "key": "shift+alt+ctrl+e",
+        "mac": "shift+alt+cmd+e",
+        "command": "hexdump.toggleEndian",
         "when": "editorLangId == hexdump"
       }
     ]

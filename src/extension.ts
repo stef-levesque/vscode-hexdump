@@ -10,11 +10,14 @@ var sprintf = require('sprintf-js').sprintf;
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
     
-    let littleEndian = vscode.workspace.getConfiguration('hexdump').get('littleEndian', true);
-
+    var littleEndian = vscode.workspace.getConfiguration('hexdump').get('littleEndian', true);
     var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-    statusBarItem.text = 'HEX';
-    statusBarItem.tooltip = littleEndian ? 'Little Endian' : 'Big Endian';
+    updateStatusBar();
+
+    function updateStatusBar() {
+        statusBarItem.text = littleEndian ? 'hex' : 'HEX';
+        statusBarItem.tooltip = littleEndian ? 'Little Endian' : 'Big Endian';
+    }
 
     vscode.window.onDidChangeActiveTextEditor((e) => {
         if (e.document.languageId === 'hexdump') {
@@ -65,6 +68,10 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             let buf = getBuffer(document.uri);
+            if (typeof buf == 'undefined') {
+                return;
+            }
+
             let arrbuf = toArrayBuffer(buf, offset, 8);
             var view = new DataView(arrbuf);
 
@@ -259,7 +266,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     });
 
-    context.subscriptions.push(disposable4, disposable3, disposable2, disposable, registration);
+    let disposable5 = vscode.commands.registerCommand('hexdump.toggleEndian', () => {
+        littleEndian = !littleEndian;
+        updateStatusBar();
+    });
+
+    context.subscriptions.push(disposable5, disposable4, disposable3, disposable2, disposable, registration);
 }
 
 // this method is called when your extension is deactivated
