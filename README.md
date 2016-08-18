@@ -63,6 +63,10 @@ Visual Studio Code v1.3.0
 
 ## Changelog
 
+### [0.1.1] 2016-08-17
+
+* Add screenshots to README.md
+
 ### [0.1.0] 2016-08-17
 
 * Hover to display data values
@@ -81,6 +85,7 @@ Visual Studio Code v1.3.0
 
 * Display a specified file in hexadecimal
 
+[0.1.1]: https://github.com/stef-levesque/vscode-hexdump/compare/82d035ae76ca09293f13a60df6bc6da8adf4302a...ff9e1658aa4205d49520d4a0bd5043c027ed98a4
 [0.1.0]: https://github.com/stef-levesque/vscode-hexdump/compare/47ae52ae080a531910c1fb9da736f1194d9af5ac...75b1bb35a09a0f87de464a74a51e96099ff90225
 [0.0.2]: https://github.com/stef-levesque/vscode-hexdump/compare/ba05da59122e25f39fbcaa39b82e98b7f1f3022e...8cfee8b0398313ca58120ec9d19c38c384042536
 [0.0.1]: https://github.com/stef-levesque/vscode-hexdump/commit/ba05da59122e25f39fbcaa39b82e98b7f1f3022e
