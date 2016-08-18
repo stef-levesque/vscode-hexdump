@@ -29,6 +29,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     var dict = [];
     function getBuffer(uri: vscode.Uri) : Buffer {
+        // ignore text files with hexdump syntax
+        if (uri.scheme != 'hexdump') {
+            return;
+        }
+
         // remove the 'hexdump' extension
         let filepath = uri.fsPath.slice(0, -8);
         if (dict[filepath]) {
