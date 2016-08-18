@@ -10,6 +10,17 @@ hexdump for Visual Studio Code
 
 Display a specified file in hexadecimal
 
+## Main Features
+
+Right-click on a file in the explorer to see *Show hexdump for file*  
+![Show hexdump](images/show-hexdump.png)
+
+Hover in the data section to see numerical values  
+![Hover DataView](images/hover-dataview.png)
+
+Right-click in the hexdump to see more options  
+![Context Menu](images/context-menu.png)
+
 ## Commands
 
 * `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show hexdump for file
