@@ -62,7 +62,8 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            var content: string = 'Hex Inspector\n';
+            var content: string = 'Hex Inspector';
+            content += littleEndian ? ' (Little Endian)\n' : ' (Big Endian)\n';
             content += 'Address: 0x' + sprintf('%08X', offset) + '\n';
 
             let sel = vscode.window.activeTextEditor.selection;
