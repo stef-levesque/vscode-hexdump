@@ -41,6 +41,13 @@ export function activate(context: vscode.ExtensionContext) {
         }
         
         let buf = fs.readFileSync(filepath);
+        
+        fs.watch(filepath, function(event, name)
+        {
+            dict[filepath] = fs.readFileSync(filepath);
+            provider.update(uri);
+        });
+
         dict[filepath] = buf;
         
         return buf;
@@ -106,6 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
         
         public update(uri: vscode.Uri) {
             this._onDidChange.fire(uri);
+            this.provideTextDocumentContent(uri);
         }
     }
 
