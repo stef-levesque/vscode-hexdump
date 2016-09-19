@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
         caps        : getConfigValue('caps', "upper"),      // 'upper' or 'lower' hex digits
         width       : getConfigValue('width', 16),          // bytes per line
         offset      : getConfigValue('showOffset', true),   // show offset on top
-        address     : getConfigValue('showAddress', true),  // show address on the left  ,
+        address     : getConfigValue('showAddress', true),  // show address on the left
         ascii       : getConfigValue('showAscii', true)     // ascii annotation at end of line  
     };
 
