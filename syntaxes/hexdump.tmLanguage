@@ -12,13 +12,13 @@
 	<array>
 		<dict>
 			<key>match</key>
-			<string>^(\s\sOffset\s\s).*$</string>
+			<string>^(\s\sOffset:\s).*$</string>
 			<key>name</key>
 			<string>keyword.header.hex</string>
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>^([a-fA-F\d]{8})([\s]{2})</string>
+			<string>^([a-fA-F\d]{8}:)</string>
 			<key>beginCaptures</key>
 			<dict>
 				<key>1</key>
