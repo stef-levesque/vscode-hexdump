@@ -3,15 +3,29 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
-var hexdump = require('hexdump-nodejs');
+var hexdump = require('hexy');
 var sprintf = require('sprintf-js').sprintf;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    
-    var littleEndian = vscode.workspace.getConfiguration('hexdump').get('littleEndian', true);
+
+    function getConfigValue(name, dflt) {
+        return vscode.workspace.getConfiguration('hexdump').get(name, dflt);
+    }
+
+    var littleEndian = getConfigValue('littleEndian', true);
     var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+
+    var format = {
+        nibbles     : 2,                                    // number of nibbles, fixed to 2 until better times 
+        caps        : getConfigValue('caps', "upper"),      // 'upper' or 'lower' hex digits
+        width       : getConfigValue('width', 16),          // bytes per line
+        offset      : getConfigValue('showOffset', true),   // show offset on top
+        address     : getConfigValue('showAddress', true),  // show address on the left
+        ascii       : getConfigValue('showAscii', true)     // ascii annotation at end of line  
+    };
+
     updateStatusBar();
 
     function updateStatusBar() {
@@ -102,9 +116,19 @@ export function activate(context: vscode.ExtensionContext) {
 
     class HexdumpContentProvider implements vscode.TextDocumentContentProvider {
         private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
-
+    
         public provideTextDocumentContent(uri: vscode.Uri): string {
-            return hexdump(getBuffer(uri));
+            let hexyFmt = {
+                format : format.nibbles == 2 ? "twos" : "fours",
+                width : format.width,
+                caps : format.caps,
+                numbering : format.address ? "hex_digits" : "none",
+                annotate : format.ascii ? "ascii" : "none"
+            };
+
+            let header = format.offset ? this.getHeader() : "";
+
+            return header + hexdump.hexy(getBuffer(uri), hexyFmt);
         }
         
         get onDidChange(): vscode.Event<vscode.Uri> {
@@ -114,6 +138,17 @@ export function activate(context: vscode.ExtensionContext) {
         public update(uri: vscode.Uri) {
             this._onDidChange.fire(uri);
             this.provideTextDocumentContent(uri);
+        }
+
+        private getHeader(): string {
+            let header = format.address ? "  Offset: " : "";
+
+            for (var i = 0; i < format.width; ++i) {
+                header += sprintf('%02X ', i);
+            }
+
+            header += "\n";
+            return header;
         }
     }
 
@@ -135,23 +170,28 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
 
+    let firstLine       = format.offset ? 1 : 0;
+    let hexLineLength   = format.width * 2;
+    let firstByteOffset = format.address ? 10 : 0;
+    let lastByteOffset  = firstByteOffset + hexLineLength + (hexLineLength / format.nibbles - 1); 
+
     function getOffset(pos: vscode.Position) : number {
         // check if within hex buffer section
-        if (pos.line < 1 || pos.character < 10 || pos.character > 57) {
+        if (pos.line < firstLine || pos.character < firstByteOffset || pos.character > lastByteOffset) {
             return;
         }
         
-        var offset = (pos.line - 1) * 16;
-        offset += Math.floor( (pos.character - 10) / 3 );
+        var offset = (pos.line - firstLine) * format.width;
+        offset += Math.floor( (pos.character - firstByteOffset) / 3 );
 
         return offset;
     }
 
     function getPosition(offset: number) : vscode.Position {
-        let row = Math.floor(offset / 16);
-        let column = offset % 16;
+        let row = Math.floor(offset / format.width);
+        let column = offset % format.width;
 
-        return new vscode.Position(1 + row, 10 + column * 3);
+        return new vscode.Position(firstLine + row, firstByteOffset + column * 3);
     }
 
     let provider = new HexdumpContentProvider();
