@@ -62,31 +62,31 @@ export function activate(context: vscode.ExtensionContext) {
             let endOffset = getOffset(e.selections[0].end);
             if (typeof startOffset == 'undefined' ||
                 typeof endOffset == 'undefined') {
+                e.textEditor.setDecorations(smallDecorationType, []);
                 return;
             }
             
-            highlightSection(startOffset, endOffset);
+            var ranges = getRanges(startOffset, endOffset, false);
+            ranges = ranges.concat( getRanges(startOffset, endOffset, true) );
+            e.textEditor.setDecorations(smallDecorationType, ranges);
         }
     });
 
-    function highlightSection(startOffset: number, endOffset: number) {
-        var activeEditor = vscode.window.activeTextEditor;
-        if (!activeEditor) {
-            return;
-        }
-
-        var startPos = activeEditor.document.validatePosition(getPosition(startOffset, true));
-        var endPos = activeEditor.document.validatePosition(getPosition(endOffset, true));
-        endPos = new vscode.Position(endPos.line, endPos.character + 1);
+    function getRanges(startOffset: number, endOffset: number, ascii: boolean): vscode.Range[] {
+        var startPos = getPosition(startOffset, ascii);
+        var endPos = getPosition(endOffset, ascii);
+        endPos = new vscode.Position(endPos.line, endPos.character + (ascii ? 1 : 2));
 
         var ranges = [];
+        var firstOffset = ascii ? firstAsciiOffset : firstByteOffset;
+        var lastOffset = ascii ? firstAsciiOffset + 16 : firstByteOffset + 16 * 3;
         for (var i=startPos.line; i<=endPos.line; ++i) {
-            var start = new vscode.Position(i, (i == startPos.line ? startPos.character : firstAsciiOffset));
-            var end = new vscode.Position(i, (i == endPos.line ? endPos.character : firstAsciiOffset + 16));
+            var start = new vscode.Position(i, (i == startPos.line ? startPos.character : firstOffset));
+            var end = new vscode.Position(i, (i == endPos.line ? endPos.character : lastOffset));
             ranges.push(new vscode.Range(start, end));
         }
 
-        activeEditor.setDecorations(smallDecorationType, ranges);
+        return ranges;
     }
 
     var dict = [];
