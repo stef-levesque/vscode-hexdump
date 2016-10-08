@@ -225,14 +225,19 @@ export function activate(context: vscode.ExtensionContext) {
     let firstAsciiOffset = lastByteOffset + 4;
 
     function getOffset(pos: vscode.Position) : number {
-        // check if within hex buffer section
-        if (pos.line < firstLine || pos.character < firstByteOffset || pos.character > lastByteOffset) {
+        // check if within a valid section
+        if (pos.line < firstLine || pos.character < firstByteOffset) {
             return;
         }
-        
-        var offset = (pos.line - firstLine) * format.width;
-        offset += Math.floor( (pos.character - firstByteOffset) / 3 );
 
+        var offset = (pos.line - firstLine) * format.width;
+        if (pos.character >= firstByteOffset && pos.character <= lastByteOffset ) {
+            // byte section
+            offset += Math.floor( (pos.character - firstByteOffset) / 3 );
+        } else if (pos.character >= firstAsciiOffset) {
+            // ascii section
+            offset += (pos.character - firstAsciiOffset);
+        }
         return offset;
     }
 
