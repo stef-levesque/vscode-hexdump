@@ -79,12 +79,14 @@ export function activate(context: vscode.ExtensionContext) {
         var endPos = activeEditor.document.validatePosition(getPosition(endOffset, true));
         endPos = new vscode.Position(endPos.line, endPos.character + 1);
 
-        if(startPos.line == endPos.line){
-            var range = new vscode.Range(startPos, endPos);
-            activeEditor.setDecorations(smallDecorationType, [range]);
-        } else {
-            activeEditor.setDecorations(smallDecorationType, []);
+        var ranges = [];
+        for (var i=startPos.line; i<=endPos.line; ++i) {
+            var start = new vscode.Position(i, (i == startPos.line ? startPos.character : firstAsciiOffset));
+            var end = new vscode.Position(i, (i == endPos.line ? endPos.character : firstAsciiOffset + 16));
+            ranges.push(new vscode.Range(start, end));
         }
+
+        activeEditor.setDecorations(smallDecorationType, ranges);
     }
 
     var dict = [];
