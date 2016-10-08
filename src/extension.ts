@@ -26,6 +26,21 @@ export function activate(context: vscode.ExtensionContext) {
         ascii       : getConfigValue('showAscii', true)     // ascii annotation at end of line  
     };
 
+    var smallDecorationType = vscode.window.createTextEditorDecorationType({
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        overviewRulerColor: 'blue',
+        overviewRulerLane: vscode.OverviewRulerLane.Right,
+        light: {
+            // this color will be used in light color themes
+            borderColor: 'darkblue'
+        },
+        dark: {
+            // this color will be used in dark color themes
+            borderColor: 'lightblue'
+        }
+    });    
+
     updateStatusBar();
 
     function updateStatusBar() {
@@ -40,6 +55,37 @@ export function activate(context: vscode.ExtensionContext) {
             statusBarItem.hide();
         }
     });
+
+    vscode.window.onDidChangeTextEditorSelection((e) => {
+        if(e.textEditor.document.languageId === 'hexdump') {
+            let startOffset = getOffset(e.selections[0].start);
+            let endOffset = getOffset(e.selections[0].end);
+            if (typeof startOffset == 'undefined' ||
+                typeof endOffset == 'undefined') {
+                return;
+            }
+            
+            highlightSection(startOffset, endOffset);
+        }
+    });
+
+    function highlightSection(startOffset: number, endOffset: number) {
+        var activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            return;
+        }
+
+        var startPos = activeEditor.document.validatePosition(getPosition(startOffset, true));
+        var endPos = activeEditor.document.validatePosition(getPosition(endOffset, true));
+        endPos = new vscode.Position(endPos.line, endPos.character + 1);
+
+        if(startPos.line == endPos.line){
+            var range = new vscode.Range(startPos, endPos);
+            activeEditor.setDecorations(smallDecorationType, [range]);
+        } else {
+            activeEditor.setDecorations(smallDecorationType, []);
+        }
+    }
 
     var dict = [];
     function getBuffer(uri: vscode.Uri) : Buffer {
@@ -174,6 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
     let hexLineLength   = format.width * 2;
     let firstByteOffset = format.address ? 10 : 0;
     let lastByteOffset  = firstByteOffset + hexLineLength + (hexLineLength / format.nibbles - 1); 
+    let firstAsciiOffset = lastByteOffset + 4;
 
     function getOffset(pos: vscode.Position) : number {
         // check if within hex buffer section
@@ -187,11 +234,17 @@ export function activate(context: vscode.ExtensionContext) {
         return offset;
     }
 
-    function getPosition(offset: number) : vscode.Position {
-        let row = Math.floor(offset / format.width);
+    function getPosition(offset: number, ascii: Boolean = false) : vscode.Position {
+        let row = firstLine + Math.floor(offset / format.width);
         let column = offset % format.width;
 
-        return new vscode.Position(firstLine + row, firstByteOffset + column * 3);
+        if (ascii) {
+            column += firstAsciiOffset;
+        } else {
+            column = firstByteOffset + column * 3;
+        }
+
+        return new vscode.Position(row, column);
     }
 
     let provider = new HexdumpContentProvider();
