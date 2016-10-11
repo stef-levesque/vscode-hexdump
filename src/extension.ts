@@ -10,22 +10,16 @@ var sprintf = require('sprintf-js').sprintf;
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-    function getConfigValue(name, dflt) {
-        return vscode.workspace.getConfiguration('hexdump').get(name, dflt);
-    }
+    var config = vscode.workspace.getConfiguration('hexdump');
+    var littleEndian = config['littleEndian'];
+    var firstLine = config['showOffset'] ? 1 : 0;
+    var hexLineLength = config['width'] * 2;
+    var firstByteOffset = config['showAddress'] ? 10 : 0;
+    var lastByteOffset = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
+    var firstAsciiOffset = lastByteOffset + (config['nibbles'] == 4 ? 2 : 4);
+    var lastAsciiOffset = firstAsciiOffset + config['width'];
 
-    var littleEndian = getConfigValue('littleEndian', true);
     var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-
-    var format = {
-        nibbles     : 2,                                    // number of nibbles, fixed to 2 until better times 
-        caps        : getConfigValue('caps', "upper"),      // 'upper' or 'lower' hex digits
-        width       : getConfigValue('width', 16),          // bytes per line
-        offset      : getConfigValue('showOffset', true),   // show offset on top
-        address     : getConfigValue('showAddress', true),  // show address on the left
-        ascii       : getConfigValue('showAscii', true)     // ascii annotation at end of line  
-    };
-
     var smallDecorationType = vscode.window.createTextEditorDecorationType({
         borderWidth: '1px',
         borderStyle: 'solid',
@@ -42,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
     });    
 
     updateStatusBar();
-
+    
     function updateStatusBar() {
         statusBarItem.text = littleEndian ? 'hex' : 'HEX';
         statusBarItem.tooltip = littleEndian ? 'Little Endian' : 'Big Endian';
@@ -67,7 +61,9 @@ export function activate(context: vscode.ExtensionContext) {
             }
             
             var ranges = getRanges(startOffset, endOffset, false);
-            ranges = ranges.concat( getRanges(startOffset, endOffset, true) );
+            if (config['showAscii']) {
+                ranges = ranges.concat( getRanges(startOffset, endOffset, true) );
+            }
             e.textEditor.setDecorations(smallDecorationType, ranges);
         }
     });
@@ -79,7 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         var ranges = [];
         var firstOffset = ascii ? firstAsciiOffset : firstByteOffset;
-        var lastOffset = ascii ? firstAsciiOffset + 16 : firstByteOffset + 16 * 3;
+        var lastOffset = ascii ? lastAsciiOffset : lastByteOffset;
         for (var i=startPos.line; i<=endPos.line; ++i) {
             var start = new vscode.Position(i, (i == startPos.line ? startPos.character : firstOffset));
             var end = new vscode.Position(i, (i == endPos.line ? endPos.character : lastOffset));
@@ -167,14 +163,14 @@ export function activate(context: vscode.ExtensionContext) {
     
         public provideTextDocumentContent(uri: vscode.Uri): string {
             let hexyFmt = {
-                format : format.nibbles == 2 ? "twos" : "fours",
-                width : format.width,
-                caps : format.caps,
-                numbering : format.address ? "hex_digits" : "none",
-                annotate : format.ascii ? "ascii" : "none"
+                format      : config['nibbles'] == 4 ? 'fours' : 'twos',
+                width       : config['width'],
+                caps        : config['uppercase'] ? 'upper' : 'lower',
+                numbering   : config['showAddress'] ? "hex_digits" : "none",
+                annotate    : config['showAscii'] ? "ascii" : "none"
             };
 
-            let header = format.offset ? this.getHeader() : "";
+            let header = config['showOffset'] ? this.getHeader() : "";
 
             return header + hexdump.hexy(getBuffer(uri), hexyFmt);
         }
@@ -189,10 +185,13 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         private getHeader(): string {
-            let header = format.address ? "  Offset: " : "";
+            let header = config['showAddress'] ? "  Offset: " : "";
 
-            for (var i = 0; i < format.width; ++i) {
-                header += sprintf('%02X ', i);
+            for (var i = 0; i < config['width']; ++i) {
+                header += sprintf('%02X', i);
+                if ((i+1) % (config['nibbles'] / 2) == 0) {
+                    header += ' ';
+                }
             }
 
             header += "\n";
@@ -218,22 +217,21 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
 
-    let firstLine       = format.offset ? 1 : 0;
-    let hexLineLength   = format.width * 2;
-    let firstByteOffset = format.address ? 10 : 0;
-    let lastByteOffset  = firstByteOffset + hexLineLength + (hexLineLength / format.nibbles - 1); 
-    let firstAsciiOffset = lastByteOffset + 4;
-
     function getOffset(pos: vscode.Position) : number {
         // check if within a valid section
         if (pos.line < firstLine || pos.character < firstByteOffset) {
             return;
         }
 
-        var offset = (pos.line - firstLine) * format.width;
+        var offset = (pos.line - firstLine) * config['width'];
+        var s = pos.character - firstByteOffset;
         if (pos.character >= firstByteOffset && pos.character <= lastByteOffset ) {
             // byte section
-            offset += Math.floor( (pos.character - firstByteOffset) / 3 );
+            if (config['nibbles'] == 4) {
+                offset += Math.floor(s / 5) + Math.floor((s+2) / 5);
+            } else {
+                offset += Math.floor(s / 3);
+            }
         } else if (pos.character >= firstAsciiOffset) {
             // ascii section
             offset += (pos.character - firstAsciiOffset);
@@ -242,13 +240,17 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     function getPosition(offset: number, ascii: Boolean = false) : vscode.Position {
-        let row = firstLine + Math.floor(offset / format.width);
-        let column = offset % format.width;
+        let row = firstLine + Math.floor(offset / config['width']);
+        let column = offset % config['width'];
 
         if (ascii) {
             column += firstAsciiOffset;
         } else {
-            column = firstByteOffset + column * 3;
+            if (config['nibbles'] == 4) {
+                column = firstByteOffset + column * 2 + Math.floor(column / 2);
+            } else {
+                column = firstByteOffset + column * 3;
+            }
         }
 
         return new vscode.Position(row, column);

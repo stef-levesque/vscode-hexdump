@@ -126,7 +126,52 @@
         "command": "hexdump.toggleEndian",
         "when": "editorLangId == hexdump"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "VS Code Hexdump Configuration",
+      "properties": {
+        "hexdump.littleEndian": {
+          "type": "boolean",
+          "default": true,
+          "description": "Set default endianness (true for little endian, false for big endian)"
+        },
+        "hexdump.nibbles": {
+          "type": "number",
+          "minimum": 2,
+          "maximum": 4,
+          "default": 2,
+          "description": "how many nibbles per group"
+        },
+        "hexdump.uppercase": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display hex digits in uppercase"
+        },
+        "hexdump.width": {
+          "type": "number",
+          "minimum": 8,
+          "maximum": 32,
+          "default": 16,
+          "description": "number of bytes per line"
+        },
+        "hexdump.showOffset": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show offset on first line"
+        },
+        "hexdump.showAddress": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show address on each line"
+        },
+        "hexdump.showAscii": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show ascii section"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
