@@ -35,12 +35,31 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });    
 
-    updateStatusBar();
-    
     function updateStatusBar() {
         statusBarItem.text = littleEndian ? 'hex' : 'HEX';
         statusBarItem.tooltip = littleEndian ? 'Little Endian' : 'Big Endian';
     }
+
+    function updateConfiguration() {
+        config = vscode.workspace.getConfiguration('hexdump');
+        littleEndian = config['littleEndian'];
+        firstLine = config['showOffset'] ? 1 : 0;
+        hexLineLength = config['width'] * 2;
+        firstByteOffset = config['showAddress'] ? 10 : 0;
+        lastByteOffset = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
+        firstAsciiOffset = lastByteOffset + (config['nibbles'] == 4 ? 2 : 4);
+        lastAsciiOffset = firstAsciiOffset + config['width'];
+
+        updateStatusBar();
+
+        for (let d of vscode.workspace.textDocuments) {
+            if (d.languageId === 'hexdump') {
+                provider.update(d.uri);
+            }
+        }
+    }
+    vscode.workspace.onDidChangeConfiguration(updateConfiguration);
+    updateConfiguration();
 
     vscode.window.onDidChangeActiveTextEditor((e) => {
         if (e.document.languageId === 'hexdump') {
