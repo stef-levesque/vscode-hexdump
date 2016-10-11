@@ -28,6 +28,16 @@ Right-click in the hexdump to see more options
 * `gotoAddress` (`ctrl+g`) Go to a specific address
 * `exportToFile` (`ctrl+s`, `cmd+s`) Export to a binary file
 
+## Configuration
+
+* `hexdump.littleEndian` Set default endianness (true for little endian, false for big endian)
+* `hexdump.nibbles` How many nibbles per group (2, 4)
+* `hexdump.uppercase` Display hex digits in uppercase
+* `hexdump.width` Number of bytes per line (8, 16, 32)
+* `hexdump.showOffset` Show offset on first line
+* `hexdump.showAddress` Show address on each line
+* `hexdump.showAscii` Show ascii section
+
 ## Installation
 
 1. Install *Visual Studio Code* (1.3.0 or higher)
@@ -54,6 +64,7 @@ Visual Studio Code v1.3.0
 * [Visual Studio Code](https://code.visualstudio.com/)
 * [vscode-docs on GitHub](https://github.com/Microsoft/vscode-docs)
 * [hexdump-nodejs on GitHub](https://github.com/bma73/hexdump-nodejs)
+* [hexy.js on GitHub](https://github.com/a2800276/hexy.js)
 
 ## License
 
@@ -62,6 +73,13 @@ Visual Studio Code v1.3.0
 ---
 
 ## Changelog
+
+### [1.0.0] 2016-10-10
+
+* Update if file changes (#2, #3, thanks @camwar11)
+* Switch to [hexy.js](https://www.npmjs.com/package/hexy) (#4, thanks @boguscoder)
+* Highlight selection in both hex and ascii sections (#6)
+* More display options (see Configuration) (#5, #7)
 
 ### [0.1.1] 2016-08-17
 
@@ -85,6 +103,7 @@ Visual Studio Code v1.3.0
 
 * Display a specified file in hexadecimal
 
+[1.0.0]: https://github.com/stef-levesque/vscode-hexdump/compare/dcb67df9426583a9968888bbe7ce83a823e2e592...52e55624cb105501c5aee169a9cfd6d4c769949b
 [0.1.1]: https://github.com/stef-levesque/vscode-hexdump/compare/82d035ae76ca09293f13a60df6bc6da8adf4302a...ff9e1658aa4205d49520d4a0bd5043c027ed98a4
 [0.1.0]: https://github.com/stef-levesque/vscode-hexdump/compare/47ae52ae080a531910c1fb9da736f1194d9af5ac...75b1bb35a09a0f87de464a74a51e96099ff90225
 [0.0.2]: https://github.com/stef-levesque/vscode-hexdump/compare/ba05da59122e25f39fbcaa39b82e98b7f1f3022e...8cfee8b0398313ca58120ec9d19c38c384042536
