@@ -75,6 +75,10 @@ Visual Studio Code v1.3.0
 
 ## Changelog
 
+### [1.0.1] 2016-10-18
+
+* Fix an issue with syntax colorization
+
 ### [1.0.0] 2016-10-10
 
 * Update if file changes (#2, #3, thanks @camwar11)
@@ -104,6 +108,7 @@ Visual Studio Code v1.3.0
 
 * Display a specified file in hexadecimal
 
+[1.0.1]: https://github.com/stef-levesque/vscode-hexdump/compare/0fba91206d32dcc01d31a6fd2a544fc6b5e0c26f...fd688a793d63e2cf76b3c169510c4d598cf180dc
 [1.0.0]: https://github.com/stef-levesque/vscode-hexdump/compare/dcb67df9426583a9968888bbe7ce83a823e2e592...52e55624cb105501c5aee169a9cfd6d4c769949b
 [0.1.1]: https://github.com/stef-levesque/vscode-hexdump/compare/82d035ae76ca09293f13a60df6bc6da8adf4302a...ff9e1658aa4205d49520d4a0bd5043c027ed98a4
 [0.1.0]: https://github.com/stef-levesque/vscode-hexdump/compare/47ae52ae080a531910c1fb9da736f1194d9af5ac...75b1bb35a09a0f87de464a74a51e96099ff90225
