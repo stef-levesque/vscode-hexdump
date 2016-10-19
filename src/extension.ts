@@ -213,7 +213,7 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
 
-            header += "\n";
+            header += "\t\n";
             return header;
         }
     }

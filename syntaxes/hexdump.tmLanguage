@@ -12,95 +12,19 @@
 	<array>
 		<dict>
 			<key>match</key>
-			<string>^(\s\sOffset:\s).*$</string>
+			<string>^(\s\sOffset:\s)?.*\t$</string>
 			<key>name</key>
 			<string>keyword.header.hex</string>
 		</dict>
 		<dict>
-			<key>begin</key>
+			<key>match</key>
 			<string>^([a-fA-F\d]{8}:)</string>
-			<key>beginCaptures</key>
-			<dict>
-				<key>1</key>
-				<dict>
-					<key>name</key>
-					<string>keyword.address.hex</string>
-				</dict>
-				<key>2</key>
-				<dict>
-					<key>name</key>
-					<string>dump.buffer-start.hex</string>
-				</dict>
-			</dict>
-			<key>end</key>
-			<string>[\s]{2}</string>
-			<key>endCaptures</key>
-			<dict>
-				<key>1</key>
-				<dict>
-					<key>name</key>
-					<string>keyword.ascii-start.hex</string>
-				</dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>dump.buffer-end.hex</string>
-				</dict>
-			</dict>
 			<key>name</key>
-			<string>dump.hex</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>[\da-fA-F]{1}</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>raw.nibble.upper.hex</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>[\da-fA-F]{1}</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>raw.nibble.lower.hex</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>raw.byte.hex</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>match</key>
-							<string>[\w\W]</string>
-							<key>name</key>
-							<string>invalid.illegal.expected-nibble.hex</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>match</key>
-					<string>[\s]{1}</string>
-					<key>name</key>
-					<string>raw.punctuation.hex</string>
-				</dict>
-				<dict>
-					<key>match</key>
-					<string>[\w\W]{1}\s*</string>
-					<key>name</key>
-					<string>invalid.illegal.character.hex</string>
-				</dict>
-			</array>
+			<string>keyword.address.hex</string>
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>.*$</string>
+			<string>  .*$</string>
 			<key>name</key>
 			<string>comment.ascii.hex</string>
 		</dict>
