@@ -110,6 +110,15 @@ export function activate(context: vscode.ExtensionContext) {
         return ranges;
     }
 
+    function getPhysicalPath(uri: vscode.Uri) : string {
+        if (uri.scheme != 'hexdump') {
+            return uri.fsPath;
+        }
+        // remove the 'hexdump' extension
+        let filepath = uri.fsPath.slice(0, -8);
+        return filepath;
+    }
+
     var dict = [];
     function getBuffer(uri: vscode.Uri) : Buffer {
         // ignore text files with hexdump syntax
@@ -117,8 +126,8 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        // remove the 'hexdump' extension
-        let filepath = uri.fsPath.slice(0, -8);
+        var filepath = getPhysicalPath(uri);
+
         if (dict[filepath]) {
             return dict[filepath];
         }
@@ -238,9 +247,9 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        let fileUri = vscode.Uri.file(filePath);
+        let fileUri = vscode.Uri.file(filePath.concat('.hexdump'));
         // add 'hexdump' extension to assign an editorLangId
-        let hexUri = vscode.Uri.parse( fileUri.toString().replace('file:', 'hexdump:').concat('.hexdump') );
+        let hexUri = fileUri.with( {scheme: 'hexdump'});
 
         vscode.workspace.openTextDocument(hexUri).then(doc => {
             vscode.window.showTextDocument(doc);
@@ -393,7 +402,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        let filepath = d.uri.fsPath.slice(0, -8);
+        let filepath = getPhysicalPath(d.uri);
 
         var ibo = <vscode.InputBoxOptions>{
             prompt: "Export to binary file",
