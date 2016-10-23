@@ -147,14 +147,15 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             var content: string = 'Hex Inspector';
-            content += littleEndian ? ' (Little Endian)\n' : ' (Big Endian)\n';
+            content += littleEndian ? ' Little Endian\n' : ' Big Endian\n';
             content += 'Address: 0x' + sprintf('%08X', offset) + '\n';
 
             let sel = vscode.window.activeTextEditor.selection;
             if (sel.contains(position)) {
                 let start = getOffset(sel.start);
                 let end = getOffset(sel.end);
-                content += 'Selection: 0x' + sprintf('%08X', start) + ' - 0x' + sprintf('%08X', end) + '\n';
+                content += 'Selection: 0x' + sprintf('%08X', start) 
+                content += ' - 0x' + sprintf('%08X', end) + ' \n';
             }
 
             let buf = getBuffer(document.uri);
@@ -166,14 +167,15 @@ export function activate(context: vscode.ExtensionContext) {
             var view = new DataView(arrbuf);
 
             content += 'Int8:   ' + sprintf('%12d', view.getInt8(0)) + '\t';
-            content += 'Uint8:  ' + sprintf('%12d', view.getUint8(0)) + '\n';
+            content += 'Uint8:  ' + sprintf('%12d', view.getUint8(0)) + ' \n';
             content += 'Int16:  ' + sprintf('%12d', view.getInt16(0, littleEndian)) + '\t';
-            content += 'Uint16: ' + sprintf('%12d', view.getUint16(0, littleEndian)) + '\n';
+            content += 'Uint16: ' + sprintf('%12d', view.getUint16(0, littleEndian)) + ' \n';
             content += 'Int32:  ' + sprintf('%12d', view.getInt32(0, littleEndian)) + '\t';
-            content += 'Uint32: ' + sprintf('%12d', view.getUint32(0, littleEndian)) + '\n';
-            content += 'Float32: ' + sprintf('%f', view.getFloat32(0, littleEndian)) + '\n';
-            content += 'Float64: ' + sprintf('%f', view.getFloat64(0, littleEndian)) + '\n';
-            return new vscode.Hover(content);
+            content += 'Uint32: ' + sprintf('%12d', view.getUint32(0, littleEndian)) + ' \n';
+            content += 'Float32: ' + sprintf('%f', view.getFloat32(0, littleEndian)) + ' \n';
+            content += 'Float64: ' + sprintf('%f', view.getFloat64(0, littleEndian)) + ' \n';
+ 
+            return new vscode.Hover( {language: 'hexdump', value: content} );
         }
     });
 

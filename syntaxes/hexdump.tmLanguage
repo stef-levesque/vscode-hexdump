@@ -12,6 +12,30 @@
 	<array>
 		<dict>
 			<key>match</key>
+			<string>Hex Inspector</string>
+			<key>name</key>
+			<string>markup.heading.2.html</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(Big|Little|Endian)</string>
+			<key>name</key>
+			<string>markup.italic</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(Address|Selection)</string>
+			<key>name</key>
+			<string>entity.name.function</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>(Int8|Uint8|Int16|Uint16|Int32|Uint32|Int64|Uint64|Float32|Float64)</string>
+			<key>name</key>
+			<string>entity.name.type</string>
+		</dict>
+		<dict>
+			<key>match</key>
 			<string>^(\s\sOffset:\s)?.*\t$</string>
 			<key>name</key>
 			<string>keyword.header.hex</string>
@@ -24,7 +48,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>  .*$</string>
+			<string>  [^\s]*$</string>
 			<key>name</key>
 			<string>comment.ascii.hex</string>
 		</dict>
