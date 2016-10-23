@@ -71,6 +71,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.window.onDidChangeTextEditorSelection((e) => {
         if(e.textEditor.document.languageId === 'hexdump') {
+            let numLine = e.textEditor.document.lineCount
+            if (e.selections[0].start.line + 1 == numLine ||
+                e.selections[0].end.line + 1 == numLine) {
+                e.textEditor.setDecorations(smallDecorationType, []);
+                return;
+            }
             let startOffset = getOffset(e.selections[0].start);
             let endOffset = getOffset(e.selections[0].end);
             if (typeof startOffset == 'undefined' ||
@@ -192,8 +198,12 @@ export function activate(context: vscode.ExtensionContext) {
             };
 
             let header = config['showOffset'] ? this.getHeader() : "";
+            let tail = '(Sorry about that, but we can’t show more of that file right now.)';
+            var buf = getBuffer(uri);
+            var hexString = hexdump.hexy(buf, hexyFmt).toString();
+            var maxIndex = hexString.indexOf('\n', 2000000);
+            return header + (maxIndex == -1 ? hexString : hexString.substr(0, maxIndex + 1) + tail);
 
-            return header + hexdump.hexy(getBuffer(uri), hexyFmt);
         }
         
         get onDidChange(): vscode.Event<vscode.Uri> {
@@ -312,7 +322,8 @@ export function activate(context: vscode.ExtensionContext) {
         let offset = getOffset(pos);        
         var buf = getBuffer(d.uri);
         
-        if (offset >= buf.length) {
+        if (offset >= buf.length ||
+            pos.line+1 == d.lineCount ) {
             return;
         }
 
