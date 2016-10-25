@@ -235,38 +235,6 @@ export function activate(context: vscode.ExtensionContext) {
                     }
                 );
             }
-            
-            /*
-            return new Promise<string>( (resolve, reject) => {
-                fs.stat(getPhysicalPath(uri), (err, stats) => {
-                    {
-                        if (stats.size < 3*1024*1024) {
-                            console.log(stats.size);
-                            var buf = getBuffer(uri);
-                            resolve( header + hexdump.hexy(buf, hexyFmt).toString() );
-                            return;
-                        }
-                        vscode.window.showWarningMessage('File might be too big, are you sure you want to continue?', 'Open').then(
-                            (value) => {
-                                if (value == 'Open') {
-                                    var buf = getBuffer(uri);
-                                    var hexString = hexdump.hexy(buf, hexyFmt).toString();
-                                    var maxIndex = hexString.indexOf('\n', 2000000);
-                                    resolve( header + (maxIndex == -1 ? hexString : hexString.substr(0, maxIndex + 1) + tail) );
-                                } else {
-                                    vscode.window.setStatusBarMessage("hexdump cancelled", 3000);
-                                    reject();
-                                }
-                            },
-                            (reason) => {
-                                vscode.window.setStatusBarMessage("hexdump cancelled", 3000);
-                                reject();
-                            }
-                        );
-                    }
-                });
-            });
-            */
         }
         
         get onDidChange(): vscode.Event<vscode.Uri> {
