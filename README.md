@@ -41,7 +41,7 @@ Right-click in the hexdump to see more options
 
 ## Installation
 
-1. Install *Visual Studio Code* (1.3.0 or higher)
+1. Install *Visual Studio Code* (1.6.0 or higher)
 2. Launch *Code*
 3. From the command palette `Ctrl-Shift-P` (Windows, Linux) or `Cmd-Shift-P` (OSX)
 4. Select `Install Extension`
@@ -58,7 +58,7 @@ Right-click in the hexdump to see more options
 
 ## Requirements
 
-Visual Studio Code v1.3.0
+Visual Studio Code v1.6.0
 
 ## Credits
 
@@ -74,6 +74,11 @@ Visual Studio Code v1.3.0
 ---
 
 ## Changelog
+
+### [1.1.1] 2016-10-25
+
+* Add color to the Hex Inspector
+* Improve support for large files
 
 ### [1.0.1] 2016-10-18
 
@@ -108,6 +113,7 @@ Visual Studio Code v1.3.0
 
 * Display a specified file in hexadecimal
 
+[1.1.1]: https://github.com/stef-levesque/vscode-hexdump/compare/802b67edbe33af050315bb953fc1ce2c69b6ffc7...ff198785736dc683be10ceca85ed1b114b151e11
 [1.0.1]: https://github.com/stef-levesque/vscode-hexdump/compare/0fba91206d32dcc01d31a6fd2a544fc6b5e0c26f...fd688a793d63e2cf76b3c169510c4d598cf180dc
 [1.0.0]: https://github.com/stef-levesque/vscode-hexdump/compare/dcb67df9426583a9968888bbe7ce83a823e2e592...52e55624cb105501c5aee169a9cfd6d4c769949b
 [0.1.1]: https://github.com/stef-levesque/vscode-hexdump/compare/82d035ae76ca09293f13a60df6bc6da8adf4302a...ff9e1658aa4205d49520d4a0bd5043c027ed98a4

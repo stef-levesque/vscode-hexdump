@@ -2,7 +2,7 @@
   "name": "vscode-hexdump",
   "displayName": "hexdump for VSCode",
   "description": "Display a specified file in hexadecimal",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "publisher": "slevesque",
   "license": "LICENSE.md",
   "icon": "icon.png",
@@ -19,7 +19,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.0.0"
+    "vscode": "^1.6.0"
   },
   "keywords": [
     "vscode",
@@ -180,7 +180,7 @@
   },
   "devDependencies": {
     "typescript": "^1.8.5",
-    "vscode": "^0.11.0"
+    "vscode": "^0.11.18"
   },
   "dependencies": {
     "hexy": "^0.2.7",
