@@ -11,12 +11,15 @@ var sprintf = require('sprintf-js').sprintf;
 export function activate(context: vscode.ExtensionContext) {
     var config = vscode.workspace.getConfiguration('hexdump');
     var littleEndian = config['littleEndian'];
-    var firstLine = config['showOffset'] ? 1 : 0;
-    var hexLineLength = config['width'] * 2;
-    var firstByteOffset = config['showAddress'] ? 10 : 0;
-    var lastByteOffset = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    var firstAsciiOffset = lastByteOffset + (config['nibbles'] == 4 ? 2 : 4);
-    var lastAsciiOffset = firstAsciiOffset + config['width'];
+    var firstLine: number = config['showOffset'] ? 1 : 0;
+    var hexLineLength: number = config['width'] * 2;
+    var firstByteOffset: number = config['showAddress'] ? 10 : 0;
+    var lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
+    var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 4 ? 2 : 4);
+    var lastAsciiOffset: number = firstAsciiOffset + config['width'];
+    var charPerLine: number = lastAsciiOffset + 1;
+    var sizeWarning: number = config ['sizeWarning'];
+    var maxLineCount: number = config['maxLineCount'];
 
     var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
     var smallDecorationType = vscode.window.createTextEditorDecorationType({
@@ -48,6 +51,9 @@ export function activate(context: vscode.ExtensionContext) {
         lastByteOffset = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
         firstAsciiOffset = lastByteOffset + (config['nibbles'] == 4 ? 2 : 4);
         lastAsciiOffset = firstAsciiOffset + config['width'];
+        charPerLine = lastAsciiOffset + 1;
+        sizeWarning = config ['sizeWarning'];
+        maxLineCount = config['maxLineCount'];
 
         updateStatusBar();
 
@@ -214,15 +220,18 @@ export function activate(context: vscode.ExtensionContext) {
             let header = config['showOffset'] ? this.getHeader() : "";
             let tail = '(Sorry about that, but we can’t show more of that file right now.)';
             
-            if (getFileSize(uri) < 3*1024*1024) {
-                return new Promise( (resolve) => { resolve( header + hexdump.hexy(getBuffer(uri), hexyFmt).toString() ); } );
+            if (getFileSize(uri) < sizeWarning) {
+                var buf = getBuffer(uri);
+                var hexString = hexdump.hexy(buf, hexyFmt).toString();
+                var maxIndex = hexString.indexOf('\n', maxLineCount * charPerLine - 1);
+                return new Promise( (resolve) => { resolve(header + (maxIndex == -1 ? hexString : hexString.substr(0, maxIndex + 1) + tail)); });
             } else {
                 return vscode.window.showWarningMessage('File might be too big, are you sure you want to continue?', 'Open').then(
                     (value) => {
                         if (value == 'Open') {
                             var buf = getBuffer(uri);
                             var hexString = hexdump.hexy(buf, hexyFmt).toString();
-                            var maxIndex = hexString.indexOf('\n', 2000000);
+                            var maxIndex = hexString.indexOf('\n', maxLineCount * charPerLine - 1);
                             return (header + (maxIndex == -1 ? hexString : hexString.substr(0, maxIndex + 1) + tail));
                         } else {
                             vscode.window.setStatusBarMessage("hexdump cancelled", 3000);

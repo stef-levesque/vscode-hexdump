@@ -169,6 +169,16 @@
           "type": "boolean",
           "default": true,
           "description": "Show ascii section"
+        },
+        "hexdump.sizeWarning": {
+          "type": "number",
+          "default": 1048576,
+          "description": "Display a warning if file is larger than this"
+        },
+        "hexdump.maxLineCount": {
+          "type": "number",
+          "default": 65535,
+          "description": "Maximum number of line to display in editor"
         }
       }
     }
