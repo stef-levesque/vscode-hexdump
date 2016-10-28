@@ -13,7 +13,7 @@ Display a specified file in hexadecimal
 
 ## Main Features
 
-Right-click on a file in the explorer to see *Show hexdump for file*  
+Right-click on a file in the explorer to see *Show Hexdump*  
 ![Show hexdump](images/show-hexdump.png)
 
 Hover in the data section to see numerical values  
@@ -24,10 +24,10 @@ Right-click in the hexdump to see more options
 
 ## Commands
 
-* `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show hexdump for file
-* `editValue` (`shift+enter`) Edit the value under the cursor
-* `gotoAddress` (`ctrl+g`) Go to a specific address
-* `exportToFile` (`ctrl+s`, `cmd+s`) Export to a binary file
+* `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show Hexdump
+* `editValue` (`shift+enter`) Edit Value Under Cursor
+* `gotoAddress` (`ctrl+g`) Go to Address...
+* `exportToFile` (`ctrl+s`, `cmd+s`) Export to Binary File...
 
 ## Configuration
 
@@ -37,13 +37,13 @@ Right-click in the hexdump to see more options
 * `hexdump.width` Number of bytes per line (8, 16, 32)
 * `hexdump.showOffset` Show offset on first line
 * `hexdump.showAddress` Show address on each line
-* `hexdump.showAscii` Show ascii section
+* `hexdump.showAscii` Show ASCII section
 
 ## Installation
 
 1. Install *Visual Studio Code* (1.7.0 or higher)
 2. Launch *Code*
-3. From the command palette `Ctrl-Shift-P` (Windows, Linux) or `Cmd-Shift-P` (OSX)
+3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p` (OS X)
 4. Select `Install Extension`
 5. Choose the extension `hexdump for VSCode`
 6. Reload *Visual Studio Code*

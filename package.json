@@ -50,26 +50,26 @@
     "commands": [
       {
         "command": "hexdump.hexdumpFile",
-        "title": "Show hexdump for file"
+        "title": "Show Hexdump"
       },
       {
         "command": "hexdump.editValue",
-        "title": "Edit the value under the cursor",
+        "title": "Edit Value Under Cursor",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.gotoAddress",
-        "title": "Go to a specific address",
+        "title": "Go to Address...",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.exportToFile",
-        "title": "Export to a binary file",
+        "title": "Export to Binary File...",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.toggleEndian",
-        "title": "Toggle between little and big endian",
+        "title": "Toggle Between Little and Big Endian",
         "when": "editorLangId == hexdump"
       }
     ],
@@ -146,7 +146,7 @@
           "minimum": 2,
           "maximum": 4,
           "default": 2,
-          "description": "how many nibbles per group"
+          "description": "How many nibbles per group"
         },
         "hexdump.uppercase": {
           "type": "boolean",
@@ -158,7 +158,7 @@
           "minimum": 8,
           "maximum": 32,
           "default": 16,
-          "description": "number of bytes per line"
+          "description": "Number of bytes per line"
         },
         "hexdump.showOffset": {
           "type": "boolean",
@@ -173,7 +173,7 @@
         "hexdump.showAscii": {
           "type": "boolean",
           "default": true,
-          "description": "Show ascii section"
+          "description": "Show ASCII section"
         }
       }
     }
