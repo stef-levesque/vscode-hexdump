@@ -50,7 +50,11 @@
     "commands": [
       {
         "command": "hexdump.hexdumpFile",
-        "title": "Show Hexdump"
+        "title": "Show Hexdump",
+        "icon": {
+          "light": "./media/hex-icon.svg",
+          "dark": "./media/hex-icon-dark.svg"
+        }
       },
       {
         "command": "hexdump.editValue",
@@ -77,6 +81,12 @@
       "explorer/context": [
         {
           "command": "hexdump.hexdumpFile"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "hexdump.hexdumpFile",
+          "group": "navigation"
         }
       ],
       "editor/title/context": [
