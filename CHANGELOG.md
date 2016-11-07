@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] 2016-11-06
+
+* Customizable value for size warning and line count (#9)
+* Add icon to title context menu (#10)
+* Command text and changelog update (#11, #12, thanks @david-russo)
+
 ## [1.1.1] 2016-10-25
 
 * Add color to the Hex Inspector
@@ -38,6 +44,8 @@
 
 * Display a specified file in hexadecimal
 
+[1.1.2]: https://github.com/stef-levesque/vscode-hexdump/compare/3f6b4fa8af24daeccfbd9c1c200fe221e1e8f712...45b01d077b3a6ad9cb2666bdeeb31b89b42a838d
+[1.1.1]: https://github.com/stef-levesque/vscode-hexdump/compare/802b67edbe33af050315bb953fc1ce2c69b6ffc7...ff198785736dc683be10ceca85ed1b114b151e11
 [1.0.1]: https://github.com/stef-levesque/vscode-hexdump/compare/0fba91206d32dcc01d31a6fd2a544fc6b5e0c26f...fd688a793d63e2cf76b3c169510c4d598cf180dc
 [1.0.0]: https://github.com/stef-levesque/vscode-hexdump/compare/dcb67df9426583a9968888bbe7ce83a823e2e592...52e55624cb105501c5aee169a9cfd6d4c769949b
 [0.1.1]: https://github.com/stef-levesque/vscode-hexdump/compare/82d035ae76ca09293f13a60df6bc6da8adf4302a...ff9e1658aa4205d49520d4a0bd5043c027ed98a4

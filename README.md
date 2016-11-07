@@ -22,6 +22,9 @@ Hover in the data section to see numerical values
 Right-click in the hexdump to see more options  
 ![Context Menu](images/context-menu.png)
 
+*Show Hexdump* icon
+![Title Icon](images/title-icon.png)
+
 ## Commands
 
 * `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show Hexdump
