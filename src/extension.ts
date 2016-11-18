@@ -40,6 +40,14 @@ export function activate(context: vscode.ExtensionContext) {
     function updateStatusBar() {
         statusBarItem.text = littleEndian ? 'hex' : 'HEX';
         statusBarItem.tooltip = littleEndian ? 'Little Endian' : 'Big Endian';
+
+        let e = vscode.window.activeTextEditor;
+        // check if hexdump document
+        if (e && e.document.uri.scheme === 'hexdump') {
+            if (getEntry(e.document.uri).isDirty) {
+                statusBarItem.text += ' (modified)';
+            }
+        }
     }
 
     function updateConfiguration() {
@@ -130,8 +138,22 @@ export function activate(context: vscode.ExtensionContext) {
         return fstat ? fstat['size'] : -1;
     }
 
-    var dict = [];
-    function getBuffer(uri: vscode.Uri) : Buffer {
+    interface IEntry {
+        buffer: Buffer;
+        isDirty: boolean;
+    }
+    
+    interface Map<T> {
+        [uri: string]: T;
+    }
+
+    let dict: Map<IEntry> = {};
+
+    function getBuffer(uri: vscode.Uri) : Buffer | undefined {
+        return getEntry(uri).buffer;
+    }
+
+    function getEntry(uri: vscode.Uri): IEntry | undefined {
         // ignore text files with hexdump syntax
         if (uri.scheme != 'hexdump') {
             return;
@@ -147,13 +169,14 @@ export function activate(context: vscode.ExtensionContext) {
         
         fs.watch(filepath, function(event, name)
         {
-            dict[filepath] = fs.readFileSync(filepath);
+            dict[filepath] = { buffer: fs.readFileSync(filepath), isDirty: false };
             provider.update(uri);
+            updateStatusBar();
         });
 
-        dict[filepath] = buf;
+        dict[filepath] = { buffer: buf, isDirty: false };
         
-        return buf;
+        return dict[filepath];
     }
 
     function toArrayBuffer(buffer: Buffer, offset: number, length: number): ArrayBuffer {
@@ -363,7 +386,8 @@ export function activate(context: vscode.ExtensionContext) {
         
         let pos = e.selection.start;
         let offset = getOffset(pos);        
-        var buf = getBuffer(d.uri);
+        var entry = getEntry(d.uri);
+        var buf = entry.buffer;
         
         if (offset >= buf.length ||
             pos.line+1 == d.lineCount ) {
@@ -386,8 +410,10 @@ export function activate(context: vscode.ExtensionContext) {
             }
         
             buf[offset] = number;
+            entry.isDirty = true;
         
             provider.update(d.uri);
+            updateStatusBar();
 
             e.selection = new vscode.Selection(pos, pos);
         });
