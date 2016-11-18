@@ -167,6 +167,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.languages.registerHoverProvider('hexdump', {
         provideHover(document, position, token) {
+            if (!config['showInspector']) {
+                return;
+            }
             let offset = getOffset(position);
             if (typeof offset == 'undefined') {
                 return;
