@@ -130,11 +130,18 @@
         "when": "editorLangId == hexdump"
       },
       {
-        "key": "ctrl+s",
-        "mac": "cmd+s",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s",
         "command": "hexdump.exportToFile",
         "when": "editorLangId == hexdump"
       },
+      {
+        "key": "ctrl+s",
+        "mac": "cmd+s",
+        "command": "hexdump.save",
+        "when": "editorLangId == hexdump"
+      },
+      
       {
         "key": "shift+alt+ctrl+e",
         "mac": "shift+alt+cmd+e",

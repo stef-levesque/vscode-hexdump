@@ -457,12 +457,33 @@ export function activate(context: vscode.ExtensionContext) {
 
     });
 
-    let disposable5 = vscode.commands.registerCommand('hexdump.toggleEndian', () => {
+
+    let disposable5 = vscode.commands.registerCommand('hexdump.save', () => {
+        let e = vscode.window.activeTextEditor;
+        let d = e.document;
+        // check if hexdump document
+        if (d.uri.scheme !== 'hexdump') {
+            return;
+        }
+
+        let filepath = getPhysicalPath(d.uri);
+        var buf = getBuffer(d.uri);
+        fs.writeFile(filepath, buf, (err) => {
+            if (err) {
+                return vscode.window.setStatusBarMessage('Hexdump: ERROR ' + err, 3000);
+            }
+
+            vscode.window.setStatusBarMessage('Hexdump: exported to ' + filepath, 3000);
+        });
+        
+    });
+
+    let disposable6 = vscode.commands.registerCommand('hexdump.toggleEndian', () => {
         littleEndian = !littleEndian;
         updateStatusBar();
     });
 
-    context.subscriptions.push(disposable5, disposable4, disposable3, disposable2, disposable, registration);
+    context.subscriptions.push(disposable6, disposable5, disposable4, disposable3, disposable2, disposable, registration);
 }
 
 // this method is called when your extension is deactivated
