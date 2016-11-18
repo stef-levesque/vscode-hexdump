@@ -2,7 +2,7 @@
   "name": "vscode-hexdump",
   "displayName": "hexdump for VSCode",
   "description": "Display a specified file in hexadecimal",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "publisher": "slevesque",
   "license": "LICENSE.md",
   "icon": "icon.png",
