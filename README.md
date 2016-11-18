@@ -30,7 +30,8 @@ Right-click in the hexdump to see more options
 * `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show Hexdump
 * `editValue` (`shift+enter`) Edit Value Under Cursor
 * `gotoAddress` (`ctrl+g`) Go to Address...
-* `exportToFile` (`ctrl+s`, `cmd+s`) Export to Binary File...
+* `exportToFile` (`ctrl+shift+s`, `cmd+shift+s`) Export to Binary File...
+* `save` (`ctrl+s`, `cmd+s`) Save file
 
 ## Configuration
 
@@ -41,6 +42,7 @@ Right-click in the hexdump to see more options
 * `hexdump.showOffset` Show offset on first line
 * `hexdump.showAddress` Show address on each line
 * `hexdump.showAscii` Show ASCII section
+* `hexdump.showInspector` Show Hex Inspector when hovering data
 
 ## Installation
 
