@@ -206,6 +206,11 @@
           "type": "boolean",
           "default": true,
           "description": "Display the Hex Inspector when hovering data"
+        },
+        "hexdump.charEncoding": {
+          "type": "string",
+          "default": "utf-8",
+          "description": "Identify the source character encoding"
         }
       }
     }
@@ -221,6 +226,7 @@
     "@types/node": "^6.0.46"
   },
   "dependencies": {
+    "encoding": "^0.1.12",
     "hexy": "^0.2.7",
     "sprintf-js": "^1.0.3"
   }

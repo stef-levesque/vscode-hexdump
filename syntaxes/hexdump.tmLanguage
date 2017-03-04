@@ -30,7 +30,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>(Int8|Uint8|Int16|Uint16|Int32|Uint32|Int64|Uint64|Float32|Float64)</string>
+			<string>(Int8|Uint8|Int16|Uint16|Int32|Uint32|Int64|Uint64|Float32|Float64|String)</string>
 			<key>name</key>
 			<string>entity.name.type</string>
 		</dict>

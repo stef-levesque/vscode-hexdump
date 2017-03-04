@@ -5,6 +5,7 @@ import * as fs from 'fs';
 
 var hexdump = require('hexy');
 var sprintf = require('sprintf-js').sprintf;
+var encoding = require('encoding');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     var charPerLine: number = lastAsciiOffset + 1;
     var sizeWarning: number = config ['sizeWarning'];
     var maxLineCount: number = config['maxLineCount'];
+    var charEncoding: string = config['charEncoding'];
 
     var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
     var smallDecorationType = vscode.window.createTextEditorDecorationType({
@@ -62,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
         charPerLine = lastAsciiOffset + 1;
         sizeWarning = config ['sizeWarning'];
         maxLineCount = config['maxLineCount'];
+        charEncoding = config['charEncoding'];
 
         updateStatusBar();
 
@@ -226,7 +229,15 @@ export function activate(context: vscode.ExtensionContext) {
             content += 'Uint32: ' + sprintf('%12d', view.getUint32(0, littleEndian)) + ' \n';
             content += 'Float32: ' + sprintf('%f', view.getFloat32(0, littleEndian)) + ' \n';
             content += 'Float64: ' + sprintf('%f', view.getFloat64(0, littleEndian)) + ' \n';
- 
+            content += '\n';
+
+            if (sel.contains(position)) {
+                let start = getOffset(sel.start);
+                let end = getOffset(sel.end);
+                content += 'String (' + charEncoding + '):\n'
+                content += encoding.convert(buf.slice(start, end), 'UTF-8', charEncoding).toString() + '\n';
+            }
+
             return new vscode.Hover( {language: 'hexdump', value: content} );
         }
     });

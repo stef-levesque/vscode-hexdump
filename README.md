@@ -19,6 +19,9 @@ Right-click on a file in the explorer to see *Show Hexdump*
 Hover in the data section to see numerical values  
 ![Hover DataView](images/hover-dataview.png)
 
+Hover a selection to preview it as a string  
+![Hover String](images/hover-string.png)
+
 Right-click in the hexdump to see more options  
 ![Context Menu](images/context-menu.png)
 
@@ -43,10 +46,11 @@ Right-click in the hexdump to see more options
 * `hexdump.showAddress` Show address on each line
 * `hexdump.showAscii` Show ASCII section
 * `hexdump.showInspector` Show Hex Inspector when hovering data
+* `hexdump.charEncoding` Identify the source character encoding
 
 ## Installation
 
-1. Install *Visual Studio Code* (1.7.0 or higher)
+1. Install *Visual Studio Code* (1.10.0 or higher)
 2. Launch *Code*
 3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p` (OS X)
 4. Select `Install Extension`
@@ -63,7 +67,7 @@ Right-click in the hexdump to see more options
 
 ## Requirements
 
-Visual Studio Code v1.7.0
+Visual Studio Code v1.10.0
 
 ## Credits
 
@@ -71,6 +75,7 @@ Visual Studio Code v1.7.0
 * [vscode-docs on GitHub](https://github.com/Microsoft/vscode-docs)
 * [hexdump-nodejs on GitHub](https://github.com/bma73/hexdump-nodejs)
 * [hexy.js on GitHub](https://github.com/a2800276/hexy.js)
+* [Encoding on GitHub](https://github.com/andris9/encoding)
 
 ## License
 
