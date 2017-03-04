@@ -362,7 +362,9 @@ export function activate(context: vscode.ExtensionContext) {
             hexdumpFile(fileUri.fsPath);
         } else {
             // Display a message box to the user
-            var wpath = vscode.workspace.rootPath;
+            var wpath = (vscode.window.activeTextEditor !== undefined) ?
+                            vscode.window.activeTextEditor.document.uri.fsPath :
+                            vscode.workspace.rootPath;
 
             var ibo = <vscode.InputBoxOptions>{
                 prompt: "File path",
