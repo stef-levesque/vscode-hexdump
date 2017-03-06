@@ -75,6 +75,11 @@
         "command": "hexdump.toggleEndian",
         "title": "Toggle Between Little and Big Endian",
         "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.searchString",
+        "title": "Search a string in the file",
+        "when": "editorLangId == hexdump"
       }
     ],
     "menus": {
@@ -102,6 +107,10 @@
         {
           "when": "editorLangId == hexdump",
           "command": "hexdump.gotoAddress"
+        },
+        {
+          "when": "editorLangId == hexdump",
+          "command": "hexdump.searchString"
         },
         {
           "when": "editorLangId == hexdump",
@@ -141,11 +150,16 @@
         "command": "hexdump.save",
         "when": "editorLangId == hexdump"
       },
-      
       {
         "key": "shift+alt+ctrl+e",
         "mac": "shift+alt+cmd+e",
         "command": "hexdump.toggleEndian",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "key": "ctrl+f",
+        "mac": "cmd+f",
+        "command": "hexdump.searchString",
         "when": "editorLangId == hexdump"
       }
     ],

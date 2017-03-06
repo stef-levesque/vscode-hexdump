@@ -522,7 +522,46 @@ export function activate(context: vscode.ExtensionContext) {
         updateStatusBar();
     });
 
-    context.subscriptions.push(disposable6, disposable5, disposable4, disposable3, disposable2, disposable, registration);
+    let disposable7 = vscode.commands.registerCommand('hexdump.searchString', () => {
+        let e = vscode.window.activeTextEditor;
+        let d = e.document;
+        // check if hexdump document
+        if (d.uri.scheme !== 'hexdump') {
+            return;
+        }
+
+        var offset = getOffset(e.selection.start);
+        if (typeof offset == 'undefined') {
+            offset = 0;
+        }
+
+        var ibo = <vscode.InputBoxOptions>{
+            prompt: "Enter string to search",
+            placeHolder: "string"
+        }
+
+        vscode.window.showInputBox(ibo).then((value : string) => {
+            if (typeof value !== 'string' || value.length == 0) {
+                return;
+            }
+
+            var buf = getBuffer(d.uri);
+
+            var index = buf.indexOf(value, offset, charEncoding);
+
+            if (index == -1) {
+                vscode.window.setStatusBarMessage("string not found", 3000);
+                return;
+            }
+
+            var pos = e.document.validatePosition(getPosition(index));
+            e.selection = new vscode.Selection(pos, pos);
+            e.revealRange(new vscode.Range(pos, pos));
+
+        });
+    });
+
+    context.subscriptions.push(disposable7, disposable6, disposable5, disposable4, disposable3, disposable2, disposable, registration);
 }
 
 // this method is called when your extension is deactivated

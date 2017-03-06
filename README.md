@@ -35,6 +35,7 @@ Right-click in the hexdump to see more options
 * `gotoAddress` (`ctrl+g`) Go to Address...
 * `exportToFile` (`ctrl+shift+s`, `cmd+shift+s`) Export to Binary File...
 * `save` (`ctrl+s`, `cmd+s`) Save file
+* `searchString` (`ctrl+f`, `cmd+f`) Search String in File
 
 ## Configuration
 
