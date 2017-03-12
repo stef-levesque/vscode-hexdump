@@ -30,7 +30,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:hexdump.hexdumpFile"
+    "*"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -91,6 +91,7 @@
       "editor/title": [
         {
           "command": "hexdump.hexdumpFile",
+          "when": "hexdump:btnEnabled && resourceScheme == file",
           "group": "navigation"
         }
       ],
@@ -225,6 +226,11 @@
           "type": "string",
           "default": "utf-8",
           "description": "Identify the source character encoding"
+        },
+        "hexdump.btnEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display Hexdump button"
         }
       }
     }

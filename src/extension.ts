@@ -22,6 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
     var sizeWarning: number = config ['sizeWarning'];
     var maxLineCount: number = config['maxLineCount'];
     var charEncoding: string = config['charEncoding'];
+    var btnEnabled: string = config['btnEnabled'];
 
     var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
     var smallDecorationType = vscode.window.createTextEditorDecorationType({
@@ -52,6 +53,10 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
+    function updateButton() {
+        vscode.commands.executeCommand('setContext', 'hexdump:btnEnabled', btnEnabled);
+    }
+
     function updateConfiguration() {
         config = vscode.workspace.getConfiguration('hexdump');
         littleEndian = config['littleEndian'];
@@ -66,6 +71,9 @@ export function activate(context: vscode.ExtensionContext) {
         maxLineCount = config['maxLineCount'];
         charEncoding = config['charEncoding'];
 
+        btnEnabled = config['btnEnabled'];
+
+        updateButton();
         updateStatusBar();
 
         for (let d of vscode.workspace.textDocuments) {
