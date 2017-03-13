@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.1] 2017-03-12
+* Make Hexdump button optional
+* Display Hexdump button only on file (#21)
+* Toggle between file and hexdump when possible (#20)
+
 ## [1.2.0] 2017-03-06
 * Hover a selection to display as string in the Hex Inspector (#14)
 * 'Search string' command (#19)
@@ -58,6 +63,7 @@
 
 * Display a specified file in hexadecimal
 
+[1.2.1]: https://github.com/stef-levesque/vscode-hexdump/compare/9b37fcd945fd03596bde8e7f53779abb762df026...898d022030882c444a80a45328e870d3cf2c7e2b
 [1.2.0]: https://github.com/stef-levesque/vscode-hexdump/compare/91523b450d325917195410f327e5df63d11bb4cf...5c61d2a044d183c6ac7ad3facc43073412672bc8
 [1.1.4]: https://github.com/stef-levesque/vscode-hexdump/compare/027e5f37a14549e0d9ff80ffac0fe09ce1476cbc...38e26457cc0be4fb3611a3512fd32325c2233d89
 [1.1.3]: https://github.com/stef-levesque/vscode-hexdump/compare/4777ef7b5429dd6df11b9698ff2930e772c73bb3...572a5db319319e7df739e9537991a3b168d295e3

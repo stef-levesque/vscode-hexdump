@@ -25,12 +25,13 @@ Hover a selection to preview it as a string
 Right-click in the hexdump to see more options  
 ![Context Menu](images/context-menu.png)
 
-*Show Hexdump* icon
+*Show Hexdump* button
 ![Title Icon](images/title-icon.png)
 
 ## Commands
 
-* `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show Hexdump
+* `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show Hexdump for the current file
+* `hexdumpPath` Show Hexdump for a specific path
 * `editValue` (`shift+enter`) Edit Value Under Cursor
 * `gotoAddress` (`ctrl+g`) Go to Address...
 * `exportToFile` (`ctrl+shift+s`, `cmd+shift+s`) Export to Binary File...
@@ -48,6 +49,7 @@ Right-click in the hexdump to see more options
 * `hexdump.showAscii` Show ASCII section
 * `hexdump.showInspector` Show Hex Inspector when hovering data
 * `hexdump.charEncoding` Identify the source character encoding
+* `hexdump.btnEnabled` Display Hexdump button
 
 ## Installation
 
