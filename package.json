@@ -57,6 +57,10 @@
         }
       },
       {
+        "command": "hexdump.hexdumpPath",
+        "title": "Show Hexdump from a path"
+      },
+      {
         "command": "hexdump.editValue",
         "title": "Edit Value Under Cursor",
         "when": "editorLangId == hexdump"
@@ -92,6 +96,11 @@
         {
           "command": "hexdump.hexdumpFile",
           "when": "hexdump:btnEnabled && resourceScheme == file",
+          "group": "navigation"
+        },
+        {
+          "command": "hexdump.hexdumpFile",
+          "when": "hexdump:btnEnabled && resourceScheme == hexdump",
           "group": "navigation"
         }
       ],
