@@ -19,7 +19,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.7.0"
+    "vscode": "^1.11.0"
   },
   "keywords": [
     "vscode",

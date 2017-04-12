@@ -134,13 +134,14 @@ export function activate(context: vscode.ExtensionContext) {
         return ranges;
     }
 
-    function getPhysicalPath(uri: vscode.Uri) : string {
-        if (uri.scheme != 'hexdump') {
-            return uri.fsPath;
+    function getPhysicalPath(uri: vscode.Uri): string {
+        if (uri.scheme === 'hexdump') {
+            // remove the 'hexdump' extension
+            let filepath = uri.with({ scheme: 'file' }).fsPath.slice(0, -8);
+            return filepath;
         }
-        // remove the 'hexdump' extension
-        let filepath = uri.fsPath.slice(0, -8);
-        return filepath;
+
+        return uri.fsPath;
     }
 
     function getFileSize(uri: vscode.Uri) : Number {
@@ -166,7 +167,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     function getEntry(uri: vscode.Uri): IEntry | undefined {
         // ignore text files with hexdump syntax
-        if (uri.scheme != 'hexdump') {
+        if (uri.scheme !== 'hexdump') {
             return;
         }
 
@@ -401,7 +402,7 @@ export function activate(context: vscode.ExtensionContext) {
             fileUri = vscode.window.activeTextEditor.document.uri;
         }
 
-        if (fileUri.scheme == 'hexdump') {
+        if (fileUri.scheme === 'hexdump') {
             //toggle with actual file
             var filePath = getPhysicalPath(fileUri);
             for (const editor of vscode.window.visibleTextEditors) {
