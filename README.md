@@ -53,7 +53,7 @@ Right-click in the hexdump to see more options
 
 ## Installation
 
-1. Install *Visual Studio Code* (1.10.0 or higher)
+1. Install *Visual Studio Code* (1.11.0 or higher)
 2. Launch *Code*
 3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p` (OS X)
 4. Select `Install Extension`
@@ -70,7 +70,7 @@ Right-click in the hexdump to see more options
 
 ## Requirements
 
-Visual Studio Code v1.10.0
+Visual Studio Code v1.11.0
 
 ## Credits
 
