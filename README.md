@@ -25,7 +25,10 @@ Hover a selection to preview it as a string
 Right-click in the hexdump to see more options  
 ![Context Menu](images/context-menu.png)
 
-*Show Hexdump* button
+Colorize modified bytes  
+![Modified Bytes](images/modified-bytes.png)
+
+*Show Hexdump* button  
 ![Title Icon](images/title-icon.png)
 
 ## Commands

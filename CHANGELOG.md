@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.0] 2017-04-19
+* Colorize modified bytes (#28)
+* Use enums for `nimbles` and `width`
+
 ## [1.2.2] 2017-04-12
 * Better support for UNC path (#25)
 
@@ -66,6 +70,7 @@
 
 * Display a specified file in hexadecimal
 
+[1.3.0]: https://github.com/stef-levesque/vscode-hexdump/compare/151ae3929eb66ff49c75568a1dabb4b6794ace5d...02ba787cc607c56de97365bbca8b479f5ba5a0cb
 [1.2.2]: https://github.com/stef-levesque/vscode-hexdump/compare/a07ac0271fe3d131bd8c88f4723b2cddbafe8362...5941fbb1a3ef4db0292127a61922d294a59da571
 [1.2.1]: https://github.com/stef-levesque/vscode-hexdump/compare/9b37fcd945fd03596bde8e7f53779abb762df026...c4c18df738b7b0ca5c791fd162f26cdb5eb907d4
 [1.2.0]: https://github.com/stef-levesque/vscode-hexdump/compare/91523b450d325917195410f327e5df63d11bb4cf...5c61d2a044d183c6ac7ad3facc43073412672bc8
