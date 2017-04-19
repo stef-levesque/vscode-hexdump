@@ -184,8 +184,10 @@
         },
         "hexdump.nibbles": {
           "type": "number",
-          "minimum": 2,
-          "maximum": 4,
+          "enum": [
+            2,
+            4
+          ],
           "default": 2,
           "description": "How many nibbles per group"
         },
@@ -196,8 +198,11 @@
         },
         "hexdump.width": {
           "type": "number",
-          "minimum": 8,
-          "maximum": 32,
+          "enum": [
+            8,
+            16,
+            32
+          ],
           "default": 16,
           "description": "Number of bytes per line"
         },
