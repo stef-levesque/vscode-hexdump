@@ -298,7 +298,6 @@ export function activate(context: vscode.ExtensionContext) {
         
         public update(uri: vscode.Uri) {
             this._onDidChange.fire(uri);
-            this.provideTextDocumentContent(uri);
         }
 
         private getHeader(): string {
@@ -431,6 +430,10 @@ export function activate(context: vscode.ExtensionContext) {
         
         let pos = e.selection.start;
         let offset = getOffset(pos);        
+        if (typeof offset == 'undefined') {
+            return;
+        }
+
         var entry = getEntry(d.uri);
         var buf = entry.buffer;
         
