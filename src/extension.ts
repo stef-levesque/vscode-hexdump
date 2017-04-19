@@ -25,6 +25,12 @@ export function activate(context: vscode.ExtensionContext) {
     var btnEnabled: string = config['btnEnabled'];
 
     var statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+
+    // create a decorator type that we use to mark modified bytes
+    const modifiedDecorationType = vscode.window.createTextEditorDecorationType({
+        backgroundColor: 'rgba(255,0,0,1)'
+    });
+
     var smallDecorationType = vscode.window.createTextEditorDecorationType({
         borderWidth: '1px',
         borderStyle: 'solid',
@@ -153,6 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
     interface IEntry {
         buffer: Buffer;
         isDirty: boolean;
+        decorations?: vscode.Range[];
     }
     
     interface Map<T> {
@@ -198,6 +205,18 @@ export function activate(context: vscode.ExtensionContext) {
             view[i] = buffer[offset + i];
         }
         return ab;
+    }
+
+    function triggerUpdateDecorations(e: vscode.TextEditor) {
+        setTimeout(updateDecorations, 500, e);
+    }
+
+    function updateDecorations(e: vscode.TextEditor) {
+        const uri = e.document.uri;
+        const entry = getEntry(uri);
+        if (entry && entry.decorations) {
+            e.setDecorations(modifiedDecorationType, entry.decorations);
+        }
     }
 
     vscode.languages.registerHoverProvider('hexdump', {
@@ -375,6 +394,11 @@ export function activate(context: vscode.ExtensionContext) {
     let provider = new HexdumpContentProvider();
     let registration = vscode.workspace.registerTextDocumentContentProvider('hexdump', provider);
 
+    vscode.window.onDidChangeActiveTextEditor(e => {
+        if (e && e.document && e.document.uri.scheme === 'hexdump') {
+            triggerUpdateDecorations(e);
+        }
+    }, null, context.subscriptions);
 
     let disposable = vscode.commands.registerCommand('hexdump.hexdumpPath', () => {
         // Display a message box to the user
@@ -429,7 +453,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         
         let pos = e.selection.start;
-        let offset = getOffset(pos);        
+        let offset = getOffset(pos);
         if (typeof offset == 'undefined') {
             return;
         }
@@ -459,9 +483,21 @@ export function activate(context: vscode.ExtensionContext) {
         
             buf[offset] = number;
             entry.isDirty = true;
-        
+
+            if(!entry.decorations) {
+                entry.decorations = [];
+            }
+
+            const posBuffer = getPosition(offset);
+            entry.decorations.push(new vscode.Range(posBuffer, posBuffer.translate(0, 2)))
+            if(config['showAscii']) {
+                const posAscii = getPosition(offset, true);
+                entry.decorations.push(new vscode.Range(posAscii, posAscii.translate(0, 1)))
+            }
+
             provider.update(d.uri);
             updateStatusBar();
+            triggerUpdateDecorations(e);
 
             e.selection = new vscode.Selection(pos, pos);
         });
