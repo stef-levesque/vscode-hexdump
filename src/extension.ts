@@ -91,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
     updateConfiguration();
 
     vscode.window.onDidChangeActiveTextEditor((e) => {
-        if (e.document.languageId === 'hexdump') {
+        if (e && e.document.languageId === 'hexdump') {
             statusBarItem.show();
         } else {
             statusBarItem.hide();
@@ -99,7 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.window.onDidChangeTextEditorSelection((e) => {
-        if(e.textEditor.document.languageId === 'hexdump') {
+        if(e && e.textEditor.document.languageId === 'hexdump') {
             let numLine = e.textEditor.document.lineCount
             if (e.selections[0].start.line + 1 == numLine ||
                 e.selections[0].end.line + 1 == numLine) {
