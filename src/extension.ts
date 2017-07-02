@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
     var hexLineLength: number = config['width'] * 2;
     var firstByteOffset: number = config['showAddress'] ? 10 : 0;
     var lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 4 ? 2 : 4);
+    var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
     var lastAsciiOffset: number = firstAsciiOffset + config['width'];
     var charPerLine: number = lastAsciiOffset + 1;
     var sizeWarning: number = config ['sizeWarning'];
@@ -70,13 +70,12 @@ export function activate(context: vscode.ExtensionContext) {
         hexLineLength = config['width'] * 2;
         firstByteOffset = config['showAddress'] ? 10 : 0;
         lastByteOffset = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-        firstAsciiOffset = lastByteOffset + (config['nibbles'] == 4 ? 2 : 4);
+        firstAsciiOffset = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
         lastAsciiOffset = firstAsciiOffset + config['width'];
         charPerLine = lastAsciiOffset + 1;
         sizeWarning = config ['sizeWarning'];
         maxLineCount = config['maxLineCount'];
         charEncoding = config['charEncoding'];
-
         btnEnabled = config['btnEnabled'];
 
         updateButton();
@@ -261,7 +260,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             if (sel.contains(position)) {
                 let start = getOffset(sel.start);
-                let end = getOffset(sel.end);
+                let end = getOffset(sel.end) + 1;
                 content += 'String (' + charEncoding + '):\n'
                 content += encoding.convert(buf.slice(start, end), 'UTF-8', charEncoding).toString() + '\n';
             }
@@ -275,7 +274,9 @@ export function activate(context: vscode.ExtensionContext) {
     
         public provideTextDocumentContent(uri: vscode.Uri): Thenable<string> {
             let hexyFmt = {
-                format      : config['nibbles'] == 4 ? 'fours' : 'twos',
+                format      : config['nibbles'] == 8 ? 'eights' : 
+                              config['nibbles'] == 4 ? 'fours' : 
+                              'twos',
                 width       : config['width'],
                 caps        : config['uppercase'] ? 'upper' : 'lower',
                 numbering   : config['showAddress'] ? "hex_digits" : "none",
@@ -362,8 +363,10 @@ export function activate(context: vscode.ExtensionContext) {
         var s = pos.character - firstByteOffset;
         if (pos.character >= firstByteOffset && pos.character <= lastByteOffset ) {
             // byte section
-            if (config['nibbles'] == 4) {
-                offset += Math.floor(s / 5) + Math.floor((s+2) / 5);
+            if (config['nibbles'] == 8) {
+                offset += Math.floor(s / 9) + Math.floor((s + 2) / 9) + Math.floor((s + 4) / 9) + Math.floor((s + 6) / 9);
+            } else if (config['nibbles'] == 4) {
+                offset += Math.floor(s / 5) + Math.floor((s + 2) / 5);
             } else {
                 offset += Math.floor(s / 3);
             }
@@ -381,7 +384,9 @@ export function activate(context: vscode.ExtensionContext) {
         if (ascii) {
             column += firstAsciiOffset;
         } else {
-            if (config['nibbles'] == 4) {
+            if (config['nibbles'] == 8) {
+                column = firstByteOffset + column * 2 + Math.floor(column / 4);
+            } else if (config['nibbles'] == 4) {
                 column = firstByteOffset + column * 2 + Math.floor(column / 2);
             } else {
                 column = firstByteOffset + column * 3;
@@ -531,7 +536,8 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            var pos = e.document.validatePosition( getPosition(offset) );
+            // Translate one to be in the middle of the byte
+            var pos = e.document.validatePosition( getPosition(offset).translate(0,1) );
             e.selection = new vscode.Selection(pos, pos);
             e.revealRange(new vscode.Range(pos, pos));
 

@@ -19,7 +19,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.11.0"
+    "vscode": "^1.13.0"
   },
   "keywords": [
     "vscode",
@@ -184,10 +184,7 @@
         },
         "hexdump.nibbles": {
           "type": "number",
-          "enum": [
-            2,
-            4
-          ],
+          "enum": [2, 4, 8],
           "default": 2,
           "description": "How many nibbles per group"
         },
@@ -198,11 +195,7 @@
         },
         "hexdump.width": {
           "type": "number",
-          "enum": [
-            8,
-            16,
-            32
-          ],
+          "enum": [8, 16, 32],
           "default": 16,
           "description": "Number of bytes per line"
         },
@@ -261,7 +254,7 @@
   },
   "dependencies": {
     "encoding": "^0.1.12",
-    "hexy": "^0.2.7",
+    "hexy": "^0.2.10",
     "sprintf-js": "^1.0.3"
   }
 }
