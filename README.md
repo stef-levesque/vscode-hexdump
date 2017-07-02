@@ -44,7 +44,7 @@ Colorize modified bytes
 ## Configuration
 
 * `hexdump.littleEndian` Set default endianness (true for little endian, false for big endian)
-* `hexdump.nibbles` How many nibbles per group (2, 4)
+* `hexdump.nibbles` How many nibbles per group (2, 4, 8)
 * `hexdump.uppercase` Display hex digits in uppercase
 * `hexdump.width` Number of bytes per line (8, 16, 32)
 * `hexdump.showOffset` Show offset on first line
@@ -73,7 +73,7 @@ Colorize modified bytes
 
 ## Requirements
 
-Visual Studio Code v1.11.0
+Visual Studio Code v1.13.0
 
 ## Credits
 
