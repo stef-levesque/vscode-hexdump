@@ -35,6 +35,7 @@ Colorize modified bytes
 
 * `hexdumpFile` (`ctrl+shift+alt+h`, `cmd+shift+alt+h`) Show Hexdump for the current file
 * `hexdumpPath` Show Hexdump for a specific path
+* `hexdumpOpen` Show Hexdump for a file selected in an Open dialog
 * `editValue` (`shift+enter`) Edit Value Under Cursor
 * `gotoAddress` (`ctrl+g`) Go to Address...
 * `exportToFile` (`ctrl+shift+s`, `cmd+shift+s`) Export to Binary File...

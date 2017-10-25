@@ -19,7 +19,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.13.0"
+    "vscode": "^1.17.0"
   },
   "keywords": [
     "vscode",
@@ -37,7 +37,9 @@
     "languages": [
       {
         "id": "hexdump",
-        "extensions": [".hexdump"]
+        "extensions": [
+          ".hexdump"
+        ]
       }
     ],
     "grammars": [
@@ -46,7 +48,7 @@
         "scopeName": "source.hexdump",
         "path": "./syntaxes/hexdump.tmLanguage"
       }
-    ],  
+    ],
     "commands": [
       {
         "command": "hexdump.hexdumpFile",
@@ -59,6 +61,10 @@
       {
         "command": "hexdump.hexdumpPath",
         "title": "Show Hexdump from a path"
+      },
+      {
+        "command": "hexdump.hexdumpOpen",
+        "title": "Show Hexdump for a file selected in an Open dialog"
       },
       {
         "command": "hexdump.editValue",
@@ -136,7 +142,7 @@
       {
         "key": "ctrl+shift+alt+h",
         "mac": "cmd+shift+alt+h",
-        "command": "hexdump.hexdumpFile"
+        "command": "hexdump.hexdumpOpen"
       },
       {
         "key": "shift+enter",
@@ -184,7 +190,11 @@
         },
         "hexdump.nibbles": {
           "type": "number",
-          "enum": [2, 4, 8],
+          "enum": [
+            2,
+            4,
+            8
+          ],
           "default": 2,
           "description": "How many nibbles per group"
         },
@@ -195,7 +205,11 @@
         },
         "hexdump.width": {
           "type": "number",
-          "enum": [8, 16, 32],
+          "enum": [
+            8,
+            16,
+            32
+          ],
           "default": 16,
           "description": "Number of bytes per line"
         },
@@ -243,9 +257,9 @@
     }
   },
   "scripts": {
-      "vscode:prepublish": "tsc -p ./",
-      "compile": "tsc -watch -p ./",
-      "postinstall": "node ./node_modules/vscode/bin/install"
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
     "typescript": "^2.2.1",

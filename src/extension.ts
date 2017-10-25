@@ -405,7 +405,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }, null, context.subscriptions);
 
-    let disposable = vscode.commands.registerCommand('hexdump.hexdumpPath', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.hexdumpPath', () => {
         // Display a message box to the user
         var wpath = vscode.workspace.rootPath;
 
@@ -418,9 +418,20 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInputBox(ibo).then(filePath => {
             hexdumpFile(filePath);
         });
-    });
+    }));
 
-    let disposable1 = vscode.commands.registerCommand('hexdump.hexdumpFile', (fileUri) => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.hexdumpOpen', () => { 
+        //const defaultUri = vscode.Uri.file(filepath);
+        const option: vscode.OpenDialogOptions = { canSelectMany: false };
+
+        vscode.window.showOpenDialog( option ).then(fileUri => {
+            if (fileUri && fileUri[0]) {
+                hexdumpFile(fileUri[0].fsPath);
+            }
+        });
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.hexdumpFile', (fileUri) => {
 
         if (typeof fileUri == 'undefined' || !(fileUri instanceof vscode.Uri)) {
             if (vscode.window.activeTextEditor === undefined) {
@@ -440,16 +451,15 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
 
-            vscode.workspace.openTextDocument(filePath)
-                .then(vscode.window.showTextDocument);
+            vscode.commands.executeCommand("vscode.open", vscode.Uri.file(filePath));
 
         } else {
             hexdumpFile(fileUri.fsPath);
         }
 
-    });
+    }));
     
-    let disposable2 = vscode.commands.registerCommand('hexdump.editValue', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.editValue', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
         // check if hexdump document
@@ -506,9 +516,9 @@ export function activate(context: vscode.ExtensionContext) {
 
             e.selection = new vscode.Selection(pos, pos);
         });
-    });
+    }));
     
-    let disposable3 = vscode.commands.registerCommand('hexdump.gotoAddress', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.gotoAddress', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
         // check if hexdump document
@@ -542,39 +552,27 @@ export function activate(context: vscode.ExtensionContext) {
             e.revealRange(new vscode.Range(pos, pos));
 
         });
-    });
+    }));
 
-    let disposable4 = vscode.commands.registerCommand('hexdump.exportToFile', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.exportToFile', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
         // check if hexdump document
         if (d.uri.scheme !== 'hexdump') {
             return;
         }
+        
+        const filepath = getPhysicalPath(d.uri);
+        const defaultUri = vscode.Uri.file(filepath);
+        const option: vscode.SaveDialogOptions = { defaultUri: d.uri.with({scheme: 'file'}), filters: {} };
 
-        let filepath = getPhysicalPath(d.uri);
-
-        var ibo = <vscode.InputBoxOptions>{
-            prompt: "Export to binary file",
-            placeHolder: "file path",
-            value: filepath
-        }
-
-        vscode.window.showInputBox(ibo).then(filePath => {
-            var buf = getBuffer(d.uri);
-            fs.writeFile(filePath, buf, (err) => {
-                if(err) {
-                    return vscode.window.setStatusBarMessage('Hexdump: ERROR ' + err, 3000);
-                }
-
-                vscode.window.setStatusBarMessage('Hexdump: exported to ' + filePath, 3000);
-            });
+        vscode.window.showSaveDialog( option ).then(fileUri => {
+            console.log(fileUri ? fileUri.toString() : 'undefined');
         });
+    }));
 
-    });
 
-
-    let disposable5 = vscode.commands.registerCommand('hexdump.save', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.save', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
         // check if hexdump document
@@ -592,14 +590,14 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.setStatusBarMessage('Hexdump: exported to ' + filepath, 3000);
         });
         
-    });
+    }));
 
-    let disposable6 = vscode.commands.registerCommand('hexdump.toggleEndian', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.toggleEndian', () => {
         littleEndian = !littleEndian;
         updateStatusBar();
-    });
+    }));
 
-    let disposable7 = vscode.commands.registerCommand('hexdump.searchString', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.searchString', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
         // check if hexdump document
@@ -636,9 +634,8 @@ export function activate(context: vscode.ExtensionContext) {
             e.revealRange(new vscode.Range(pos, pos));
 
         });
-    });
+    }));
 
-    context.subscriptions.push(disposable7, disposable6, disposable5, disposable4, disposable3, disposable2, disposable1, disposable, registration);
 }
 
 // this method is called when your extension is deactivated
