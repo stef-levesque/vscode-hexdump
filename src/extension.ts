@@ -90,10 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
         // add 'hexdump' extension to assign an editorLangId
         let hexUri = fileUri.with( {scheme: 'hexdump'});
 
-        vscode.workspace.openTextDocument(hexUri).then(doc => {
-            vscode.window.showTextDocument(doc);
-        });
-
+        vscode.commands.executeCommand('vscode.open', hexUri);
     }
 
 
