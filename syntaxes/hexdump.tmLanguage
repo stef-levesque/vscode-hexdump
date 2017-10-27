@@ -54,7 +54,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>^\(Sorry about that, but we can’t show more of that file right now\.\)</string>
+			<string>^\(Reached the maximum number of line\. You can change hexdump.maxLineCount in your settings\.\)</string>
 			<key>name</key>
 			<string>invalid.illegal</string>
 		</dict>

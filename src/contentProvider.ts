@@ -55,7 +55,7 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
             };
 
             let header = config['showOffset'] ? this.getHeader() : "";
-            let tail = '(Sorry about that, but we can’t show more of that file right now.)';
+            let tail = '(Reached the maximum number of line. You can change hexdump.maxLineCount in your settings.)';
             
             if (getFileSize(uri) < sizeWarning) {
                 var buf = getBuffer(uri);
