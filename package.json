@@ -230,13 +230,13 @@
         },
         "hexdump.sizeWarning": {
           "type": "number",
-          "default": 10485760,
+          "default": 5242880,
           "description": "Display a warning if file is larger than this"
         },
-        "hexdump.maxLineCount": {
+        "hexdump.sizeDisplay": {
           "type": "number",
-          "default": 262144,
-          "description": "Maximum number of line to display in editor"
+          "default": 5242880,
+          "description": "Maximum size of the buffer to display"
         },
         "hexdump.showInspector": {
           "type": "boolean",

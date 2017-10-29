@@ -54,7 +54,13 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>^\(Reached the maximum number of line\. You can change hexdump.maxLineCount in your settings\.\)</string>
+			<string>^\(Reached the maximum size to display\. You can change \"hexdump.sizeDisplay\" in your settings\.\)</string>
+			<key>name</key>
+			<string>invalid.illegal</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>^\(hexdump cancelled\.\)</string>
 			<key>name</key>
 			<string>invalid.illegal</string>
 		</dict>

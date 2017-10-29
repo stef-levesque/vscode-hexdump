@@ -40,10 +40,10 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
         const firstAsciiOffset = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
         const lastAsciiOffset = firstAsciiOffset + config['width'];
         const charPerLine = lastAsciiOffset + 1;
-        const sizeWarning = config ['sizeWarning'];
-        const maxLineCount = config['maxLineCount'];
+        const sizeWarning = config['sizeWarning'];
+        const sizeDisplay = config['sizeDisplay'];
 
-        return new Promise( (resolve) => {
+        return new Promise( async (resolve) => {
             let hexyFmt = {
                 format      : config['nibbles'] == 8 ? 'eights' : 
                             config['nibbles'] == 4 ? 'fours' : 
@@ -51,36 +51,27 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
                 width       : config['width'],
                 caps        : config['uppercase'] ? 'upper' : 'lower',
                 numbering   : config['showAddress'] ? "hex_digits" : "none",
-                annotate    : config['showAscii'] ? "ascii" : "none"
+                annotate    : config['showAscii'] ? "ascii" : "none",
+                length      : sizeDisplay
             };
 
             let header = config['showOffset'] ? this.getHeader() : "";
-            let tail = '(Reached the maximum number of line. You can change hexdump.maxLineCount in your settings.)';
-            
-            if (getFileSize(uri) < sizeWarning) {
-                var buf = getBuffer(uri);
-                var hexString = hexdump.hexy(buf, hexyFmt).toString();
-                var maxIndex = hexString.indexOf('\n', maxLineCount * charPerLine - 1);
-                return resolve(header + (maxIndex == -1 ? hexString : hexString.substr(0, maxIndex + 1) + tail));
+            let tail = '(Reached the maximum size to display. You can change "hexdump.sizeDisplay" in your settings.)';
+
+            let proceed = getFileSize(uri) < sizeWarning ? 'Open' : await vscode.window.showWarningMessage('File might be too big, are you sure you want to continue?', 'Open');
+            if (proceed == 'Open') {
+                let buf = getBuffer(uri);
+                let hexString = header;
+                hexString += hexdump.hexy(buf, hexyFmt).toString();
+                if (buf.length > sizeDisplay) {
+                    hexString += tail;
+                }
+
+                return resolve(hexString);
             } else {
-                vscode.window.showWarningMessage('File might be too big, are you sure you want to continue?', 'Open').then(
-                    (value) => {
-                        if (value == 'Open') {
-                            var buf = getBuffer(uri);
-                            var hexString = hexdump.hexy(buf, hexyFmt).toString();
-                            var maxIndex = hexString.indexOf('\n', maxLineCount * charPerLine - 1);
-                            return resolve(header + (maxIndex == -1 ? hexString : hexString.substr(0, maxIndex + 1) + tail));
-                        } else {
-                            vscode.window.setStatusBarMessage("hexdump cancelled", 3000);
-                            return;
-                        }
-                    },
-                    (reason) => {
-                        vscode.window.setStatusBarMessage("hexdump cancelled", 3000);
-                        return;
-                    }
-                );
-            }});
+                return resolve('(hexdump cancelled.)');
+            }
+        });
     }
     
     get onDidChange(): vscode.Event<vscode.Uri> {
