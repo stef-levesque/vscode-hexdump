@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.0] 2017-10-29
+* Split code into files
+* Better handling of large files
+* Change `maxLineCount` to `sizeDisplay`
+* New icon
+
 ## [1.5.0] 2017-10-25
 * Use Open and Save dialog
 * Fix images in documentation
@@ -79,7 +85,8 @@
 
 * Display a specified file in hexadecimal
 
-[1.4.0]: https://github.com/stef-levesque/vscode-hexdump/compare/bd4389ef5d9970c2829cd004fc35c55f60bbd9c6...208314e9224bf304227131f81201f99bc4152bf0
+[1.6.0]: https://github.com/stef-levesque/vscode-hexdump/compare/72e52e914030e7c2631549e353c4e005b63a06f3...7b6271ac0db73a818c58bce7b4fcf1e23f72f02b
+[1.5.0]: https://github.com/stef-levesque/vscode-hexdump/compare/bd4389ef5d9970c2829cd004fc35c55f60bbd9c6...208314e9224bf304227131f81201f99bc4152bf0
 [1.4.0]: https://github.com/stef-levesque/vscode-hexdump/compare/8502eb756e5bcc49d5dbe17af682dae064c8d7ad...3da7bef847a3a96249d5164c5e1c114de0546fac
 [1.3.0]: https://github.com/stef-levesque/vscode-hexdump/compare/151ae3929eb66ff49c75568a1dabb4b6794ace5d...02ba787cc607c56de97365bbca8b479f5ba5a0cb
 [1.2.2]: https://github.com/stef-levesque/vscode-hexdump/compare/a07ac0271fe3d131bd8c88f4723b2cddbafe8362...5941fbb1a3ef4db0292127a61922d294a59da571

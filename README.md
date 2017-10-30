@@ -52,6 +52,8 @@ Colorize modified bytes
 * `hexdump.showAddress` Show address on each line
 * `hexdump.showAscii` Show ASCII section
 * `hexdump.showInspector` Show Hex Inspector when hovering data
+* `hexdump.sizeWarning` Display a warning if file is larger than this
+* `hexdump.sizeDisplay` Maximum size of the buffer to display
 * `hexdump.charEncoding` Identify the source character encoding
 * `hexdump.btnEnabled` Display Hexdump button
 

@@ -2,7 +2,7 @@
   "name": "vscode-hexdump",
   "displayName": "hexdump for VSCode",
   "description": "Display a specified file in hexadecimal",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "publisher": "slevesque",
   "license": "LICENSE.md",
   "icon": "icon.png",
@@ -228,6 +228,11 @@
           "default": true,
           "description": "Show ASCII section"
         },
+        "hexdump.showInspector": {
+          "type": "boolean",
+          "default": true,
+          "description": "Display the Hex Inspector when hovering data"
+        },
         "hexdump.sizeWarning": {
           "type": "number",
           "default": 5242880,
@@ -237,11 +242,6 @@
           "type": "number",
           "default": 5242880,
           "description": "Maximum size of the buffer to display"
-        },
-        "hexdump.showInspector": {
-          "type": "boolean",
-          "default": true,
-          "description": "Display the Hex Inspector when hovering data"
         },
         "hexdump.charEncoding": {
           "type": "string",
