@@ -209,10 +209,14 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             const posBuffer = getPosition(offset);
-            entry.decorations.push(new vscode.Range(posBuffer, posBuffer.translate(0, 3 * bytes.length - 1)))
+            getRanges(offset, offset + bytes.length - 1, false).forEach(range => {
+                entry.decorations.push(range);
+            });
             if (config['showAscii']) {
                 const posAscii = getPosition(offset, true);
-                entry.decorations.push(new vscode.Range(posAscii, posAscii.translate(0, bytes.length)))
+                getRanges(offset, offset + bytes.length - 1, true).forEach(range => {
+                    entry.decorations.push(range);
+                });
             }
 
             provider.update(d.uri);
