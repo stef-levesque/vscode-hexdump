@@ -198,6 +198,11 @@ export function activate(context: vscode.ExtensionContext) {
                 }
                 bytes.push(number);
             }
+
+            if (buf.length < offset + bytes.length) {
+                return;
+            }
+
             bytes.forEach((byte, index) => {
                 buf[offset + index] = byte;
             });
