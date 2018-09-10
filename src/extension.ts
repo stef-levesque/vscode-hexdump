@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
     updateConfiguration();
 
     vscode.window.onDidChangeTextEditorSelection((e) => {
-        if(e && e.textEditor.document.languageId === 'hexdump') {
+        if (e && e.textEditor.document.languageId === 'hexdump') {
             let numLine = e.textEditor.document.lineCount
             if (e.selections[0].start.line + 1 == numLine ||
                 e.selections[0].end.line + 1 == numLine) {
@@ -65,10 +65,10 @@ export function activate(context: vscode.ExtensionContext) {
                 e.textEditor.setDecorations(smallDecorationType, []);
                 return;
             }
-            
+
             var ranges = getRanges(startOffset, endOffset, false);
             if (config['showAscii']) {
-                ranges = ranges.concat( getRanges(startOffset, endOffset, true) );
+                ranges = ranges.concat(getRanges(startOffset, endOffset, true));
             }
             e.textEditor.setDecorations(smallDecorationType, ranges);
         }
@@ -88,7 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         let fileUri = vscode.Uri.file(filePath.concat('.hexdump'));
         // add 'hexdump' extension to assign an editorLangId
-        let hexUri = fileUri.with( {scheme: 'hexdump'});
+        let hexUri = fileUri.with({ scheme: 'hexdump' });
 
         vscode.commands.executeCommand('vscode.open', hexUri);
     }
@@ -118,11 +118,11 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('hexdump.hexdumpOpen', () => { 
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.hexdumpOpen', () => {
         //const defaultUri = vscode.Uri.file(filepath);
         const option: vscode.OpenDialogOptions = { canSelectMany: false };
 
-        vscode.window.showOpenDialog( option ).then(fileUri => {
+        vscode.window.showOpenDialog(option).then(fileUri => {
             if (fileUri && fileUri[0]) {
                 hexdumpFile(fileUri[0].fsPath);
             }
@@ -156,7 +156,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
     }));
-    
+
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.editValue', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
@@ -164,7 +164,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (d.uri.scheme !== 'hexdump') {
             return;
         }
-        
+
         let pos = e.selection.start;
         let offset = getOffset(pos);
         if (typeof offset == 'undefined') {
@@ -173,9 +173,9 @@ export function activate(context: vscode.ExtensionContext) {
 
         var entry = getEntry(d.uri);
         var buf = entry.buffer;
-        
+
         if (offset >= buf.length ||
-            pos.line+1 == d.lineCount ) {
+            pos.line + 1 == d.lineCount) {
             return;
         }
 
@@ -184,28 +184,35 @@ export function activate(context: vscode.ExtensionContext) {
             placeHolder: "value",
             value: sprintf('%02X', buf[offset])
         }
-        
+
         vscode.window.showInputBox(ibo).then(value => {
             if (typeof value == 'undefined') {
                 return;
             }
-            let number = parseInt(value, 16);
-            if (isNaN(number)) {
-                return;
+            let bytes = [];
+            let values = value.split(' ');
+            for (let i = 0; i < values.length; i++) {
+                let number = parseInt(values[i], 16);
+                if (isNaN(number)) {
+                    return;
+                }
+                bytes.push(number);
             }
-        
-            buf[offset] = number;
+            bytes.forEach((byte, index) => {
+                buf[offset + index] = byte;
+            });
+
             entry.isDirty = true;
 
-            if(!entry.decorations) {
+            if (!entry.decorations) {
                 entry.decorations = [];
             }
 
             const posBuffer = getPosition(offset);
-            entry.decorations.push(new vscode.Range(posBuffer, posBuffer.translate(0, 2)))
-            if(config['showAscii']) {
+            entry.decorations.push(new vscode.Range(posBuffer, posBuffer.translate(0, 3 * bytes.length - 1)))
+            if (config['showAscii']) {
                 const posAscii = getPosition(offset, true);
-                entry.decorations.push(new vscode.Range(posAscii, posAscii.translate(0, 1)))
+                entry.decorations.push(new vscode.Range(posAscii, posAscii.translate(0, bytes.length)))
             }
 
             provider.update(d.uri);
@@ -215,7 +222,7 @@ export function activate(context: vscode.ExtensionContext) {
             e.selection = new vscode.Selection(pos, pos);
         });
     }));
-    
+
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.gotoAddress', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
@@ -234,7 +241,7 @@ export function activate(context: vscode.ExtensionContext) {
             placeHolder: "address",
             value: sprintf('%08X', offset)
         }
-        
+
         vscode.window.showInputBox(ibo).then(value => {
             if (typeof value == 'undefined') {
                 return;
@@ -245,7 +252,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             // Translate one to be in the middle of the byte
-            var pos = e.document.validatePosition( getPosition(offset).translate(0,1) );
+            var pos = e.document.validatePosition(getPosition(offset).translate(0, 1));
             e.selection = new vscode.Selection(pos, pos);
             e.revealRange(new vscode.Range(pos, pos));
 
@@ -259,12 +266,12 @@ export function activate(context: vscode.ExtensionContext) {
         if (d.uri.scheme !== 'hexdump') {
             return;
         }
-        
+
         const filepath = getPhysicalPath(d.uri);
         const defaultUri = vscode.Uri.file(filepath);
-        const option: vscode.SaveDialogOptions = { defaultUri: d.uri.with({scheme: 'file'}), filters: {} };
+        const option: vscode.SaveDialogOptions = { defaultUri: d.uri.with({ scheme: 'file' }), filters: {} };
 
-        vscode.window.showSaveDialog( option ).then(fileUri => {
+        vscode.window.showSaveDialog(option).then(fileUri => {
             console.log(fileUri ? fileUri.toString() : 'undefined');
         });
     }));
@@ -287,7 +294,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             vscode.window.setStatusBarMessage('Hexdump: exported to ' + filepath, 3000);
         });
-        
+
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.toggleEndian', () => {
@@ -313,7 +320,7 @@ export function activate(context: vscode.ExtensionContext) {
             placeHolder: "string"
         }
 
-        vscode.window.showInputBox(ibo).then((value : string) => {
+        vscode.window.showInputBox(ibo).then((value: string) => {
             if (typeof value !== 'string' || value.length == 0) {
                 return;
             }
