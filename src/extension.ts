@@ -190,7 +190,7 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
             let bytes = [];
-            let values = value.split(' ');
+            let values = value.match(/(?:0x)?([0-9a-fA-F]){2}/g)
             for (let i = 0; i < values.length; i++) {
                 let number = parseInt(values[i], 16);
                 if (isNaN(number)) {
