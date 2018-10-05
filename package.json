@@ -267,7 +267,7 @@
     "@types/node": "^6.0.46"
   },
   "dependencies": {
-    "encoding": "^0.1.12",
+    "iconv-lite": "^0.4.24",
     "hexy": "^0.2.10",
     "sprintf-js": "^1.0.3"
   }
