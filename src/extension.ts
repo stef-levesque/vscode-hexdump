@@ -281,7 +281,16 @@ export function activate(context: vscode.ExtensionContext) {
         const option: vscode.SaveDialogOptions = { defaultUri: d.uri.with({ scheme: 'file' }), filters: {} };
 
         vscode.window.showSaveDialog(option).then(fileUri => {
-            console.log(fileUri ? fileUri.toString() : 'undefined');
+            if (fileUri) {
+                var buf = getBuffer(d.uri);
+                fs.writeFile(fileUri.fsPath, buf, (err) => {
+                    if (err) {
+                        return vscode.window.setStatusBarMessage('Hexdump: ERROR ' + err, 3000);
+                    }
+        
+                    vscode.window.setStatusBarMessage('Hexdump: exported to ' + filepath, 3000);
+                });
+            }
         });
     }));
 
