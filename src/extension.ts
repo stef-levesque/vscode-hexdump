@@ -67,6 +67,17 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
+            var buf = getBuffer(e.textEditor.document.uri);
+            if (buf)
+            {
+                if (startOffset >= buf.length) {
+                    startOffset = buf.length - 1;
+                }
+                if (endOffset >= buf.length) {
+                    endOffset = buf.length - 1;
+                }
+            }
+
             var ranges = getRanges(startOffset, endOffset, false);
             if (config['showAscii']) {
                 ranges = ranges.concat(getRanges(startOffset, endOffset, true));
