@@ -158,6 +158,21 @@ export function triggerUpdateDecorations(e: vscode.TextEditor) {
     setTimeout(updateDecorations, 500, e);
 }
 
+export function getBufferSelection(document: vscode.TextDocument, selection?: vscode.Selection): Buffer | undefined {
+    let buf = getBuffer(document.uri);
+    if (typeof buf == 'undefined') {
+        return;
+    }
+
+    if (selection && !selection.isEmpty) {
+        let start = getOffset(selection.start);
+        let end = getOffset(selection.end) + 1;
+        return buf.slice(start, end);
+    }
+    
+    return buf;
+}
+
 // create a decorator type that we use to mark modified bytes
 const modifiedDecorationType = vscode.window.createTextEditorDecorationType({
     backgroundColor: 'rgba(255,0,0,1)'
