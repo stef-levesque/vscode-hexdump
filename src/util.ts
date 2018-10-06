@@ -146,12 +146,7 @@ export function getEntry(uri: vscode.Uri): IEntry | undefined {
 
 
 export function toArrayBuffer(buffer: Buffer, offset: number, length: number): ArrayBuffer {
-    var ab = new ArrayBuffer(buffer.length);
-    var view = new Uint8Array(ab);
-    for (var i = 0; i < buffer.length; ++i) {
-        view[i] = buffer[offset + i];
-    }
-    return ab;
+    return buffer.buffer.slice(offset, offset + length);
 }
 
 export function triggerUpdateDecorations(e: vscode.TextEditor) {
