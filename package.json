@@ -90,6 +90,41 @@
         "command": "hexdump.searchString",
         "title": "Search a string in the file",
         "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.copyAsFormat",
+        "title": "Copy the selection in a specific format",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.copyAsText",
+        "title": "Copy the buffer selection as text",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.copyAsC",
+        "title": "Copy the buffer selection as C source",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.copyAsJava",
+        "title": "Copy the buffer selection as Java source",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.copyAsJSON",
+        "title": "Copy the buffer selection as JSON",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.copyAsBase64",
+        "title": "Copy the buffer selection as Base64",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.copyAsHexString",
+        "title": "Copy the buffer selection as a hexadecimal string",
+        "when": "editorLangId == hexdump"
       }
     ],
     "menus": {
@@ -135,6 +170,10 @@
         {
           "when": "editorLangId == hexdump",
           "command": "hexdump.toggleEndian"
+        },
+        {
+          "when": "editorLangId == hexdump",
+          "command": "hexdump.copyAsFormat"
         }
       ]
     },
@@ -176,6 +215,12 @@
         "key": "ctrl+f",
         "mac": "cmd+f",
         "command": "hexdump.searchString",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "key": "alt+ctrl+c",
+        "mac": "alt+cmd+c",
+        "command": "hexdump.copyAsFormat",
         "when": "editorLangId == hexdump"
       }
     ],
@@ -264,11 +309,13 @@
   "devDependencies": {
     "typescript": "^2.2.1",
     "vscode": "^1.0.3",
-    "@types/node": "^6.0.46"
+    "@types/node": "^6.0.46",
+    "@types/clipboardy": "^1.1.0"
   },
   "dependencies": {
-    "iconv-lite": "^0.4.24",
+    "clipboardy": "^1.2.3",
     "hexy": "^0.2.10",
+    "iconv-lite": "^0.4.24",
     "sprintf-js": "^1.0.3"
   }
 }

@@ -41,6 +41,7 @@ Colorize modified bytes
 * `exportToFile` (`ctrl+shift+s`, `cmd+shift+s`) Export to Binary File...
 * `save` (`ctrl+s`, `cmd+s`) Save file
 * `searchString` (`ctrl+f`, `cmd+f`) Search String in File
+* `copyAsFormat` (`ctrl+alt+c`, `cmd+alt+c`) Copy the selection in a specific format
 
 ## Configuration
 
