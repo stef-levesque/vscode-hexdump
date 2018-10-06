@@ -395,6 +395,10 @@ export function activate(context: vscode.ExtensionContext) {
 
             content += "\n};\n";
 
+            if (/^win/.test(process.platform)) {
+                content = content.replace(/\n/g, '\r\n');
+            }
+
             clipboardy.write(content);
         }
     }));
@@ -416,6 +420,10 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             content += "\n};\n";
+
+            if (/^win/.test(process.platform)) {
+                content = content.replace(/\n/g, '\r\n');
+            }
 
             clipboardy.write(content);
         }
