@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { sprintf } from 'sprintf-js';
 import * as clipboardy from 'clipboardy';
+import * as MemoryMap from 'nrf-intel-hex';
 
 import HexdumpContentProvider from './contentProvider'
 import HexdumpHoverProvider from './hoverProvider';
@@ -372,7 +373,7 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.copyAsFormat', () => {
-        const formats = ["Text", "C", "Java", "JSON", "Base64", "HexString"];
+        const formats = ["Text", "C", "Java", "JSON", "Base64", "HexString", "IntelHex"];
         vscode.window.showQuickPick(formats, { ignoreFocusOut: true }).then((format) => {
             if (format && format.length > 0) {
                 vscode.commands.executeCommand('hexdump.copyAs' + format);
@@ -461,6 +462,17 @@ export function activate(context: vscode.ExtensionContext) {
         let buffer = getBufferSelection(e.document, e.selection);
         if (buffer) {
             clipboardy.write(buffer.toString('hex'));
+        }
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.copyAsIntelHex', () => {
+        let e = vscode.window.activeTextEditor;
+        let buffer = getBufferSelection(e.document, e.selection);
+        if (buffer) {
+            let address = e.selection.isEmpty ? 0 : getOffset(e.selection.start);
+            let memMap = new MemoryMap();
+            memMap.set(address, buffer);
+            clipboardy.write(memMap.asHexString());
         }
     }));
 }
