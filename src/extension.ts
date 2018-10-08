@@ -288,7 +288,7 @@ export function activate(context: vscode.ExtensionContext) {
                     if (err) {
                         return vscode.window.setStatusBarMessage('Hexdump: ERROR ' + err, 3000);
                     }
-        
+
                     vscode.window.setStatusBarMessage('Hexdump: exported to ' + filepath, 3000);
                 });
             }
@@ -358,6 +358,49 @@ export function activate(context: vscode.ExtensionContext) {
             e.revealRange(new vscode.Range(pos, pos));
 
         });
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.searchHex', async () => {
+        const e = vscode.window.activeTextEditor;
+        const d = e.document;
+        // check if hexdump document
+        if (d.uri.scheme !== 'hexdump') {
+            return;
+        }
+
+        const offset : number = getOffset(e.selection.start) || 0;
+
+        const ibo = <vscode.InputBoxOptions>{
+            prompt: "Enter HEX string to search",
+            placeHolder: "HEX string"
+        }
+
+        const value : string = await vscode.window.showInputBox(ibo);
+        if (typeof value !== 'string' || value.length == 0 || !/^[a-fA-F0-9\s]+$/.test(value)) {
+            return;
+        }
+        const hexString = value.replace(/\s/g, '');
+        if (hexString.length % 2 != 0) {
+            return;
+        }
+
+        const bytesLength = hexString.length / 2;
+        const searchBuf = Buffer.alloc(bytesLength);
+        for (let i = 0; i < bytesLength; ++i) {
+            const byte = hexString.substr(i * 2, 2);
+            searchBuf.writeUInt8(parseInt(byte, 16), i);
+        }
+
+        const index = getBuffer(d.uri).indexOf(searchBuf, offset);
+
+        if (index == -1) {
+            vscode.window.setStatusBarMessage("HEX string not found", 3000);
+            return;
+        }
+
+        const pos = e.document.validatePosition(getPosition(index));
+        e.selection = new vscode.Selection(pos, pos);
+        e.revealRange(new vscode.Range(pos, pos));
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.copyAsFormat', () => {
