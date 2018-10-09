@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.0] 2018-10-08
+* Copy selection in different formats (#41, #43, #47)
+* Add support for multi byte edit (#42, #45, thanks @noam787)
+* Fix `exportToFile` (#46)
+* Search a HEX string in the file (#48, thanks @jinliming2)
+
 ## [1.6.0] 2017-10-29
 * Split code into files
 * Better handling of large files
@@ -85,6 +91,7 @@
 
 * Display a specified file in hexadecimal
 
+[1.7.0]: https://github.com/stef-levesque/vscode-hexdump/compare/7d60017fc919a2ecaecdf52ce51f2ac9da44d361...f8deab7bb875552746a61922bdfbbdd8401988f2
 [1.6.0]: https://github.com/stef-levesque/vscode-hexdump/compare/72e52e914030e7c2631549e353c4e005b63a06f3...7b6271ac0db73a818c58bce7b4fcf1e23f72f02b
 [1.5.0]: https://github.com/stef-levesque/vscode-hexdump/compare/bd4389ef5d9970c2829cd004fc35c55f60bbd9c6...208314e9224bf304227131f81201f99bc4152bf0
 [1.4.0]: https://github.com/stef-levesque/vscode-hexdump/compare/8502eb756e5bcc49d5dbe17af682dae064c8d7ad...3da7bef847a3a96249d5164c5e1c114de0546fac

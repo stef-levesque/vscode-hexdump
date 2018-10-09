@@ -41,6 +41,7 @@ Colorize modified bytes
 * `exportToFile` (`ctrl+shift+s`, `cmd+shift+s`) Export to Binary File...
 * `save` (`ctrl+s`, `cmd+s`) Save file
 * `searchString` (`ctrl+f`, `cmd+f`) Search String in File
+* `searchHex` (`ctrl+alt+f`, `cmd+alt+f`) Search Hex String in File
 * `copyAsFormat` (`ctrl+alt+c`, `cmd+alt+c`) Copy the selection in a specific format
 
 ## Configuration
@@ -60,7 +61,7 @@ Colorize modified bytes
 
 ## Installation
 
-1. Install *Visual Studio Code* (1.11.0 or higher)
+1. Install *Visual Studio Code* (1.17.0 or higher)
 2. Launch *Code*
 3. From the command palette `ctrl+shift+p` (Windows, Linux) or `cmd+shift+p` (OS X)
 4. Select `Install Extension`
@@ -77,7 +78,7 @@ Colorize modified bytes
 
 ## Requirements
 
-Visual Studio Code v1.13.0
+Visual Studio Code v1.17.0
 
 ## Credits
 
@@ -85,7 +86,9 @@ Visual Studio Code v1.13.0
 * [vscode-docs on GitHub](https://github.com/Microsoft/vscode-docs)
 * [hexdump-nodejs on GitHub](https://github.com/bma73/hexdump-nodejs)
 * [hexy.js on GitHub](https://github.com/a2800276/hexy.js)
-* [Encoding on GitHub](https://github.com/andris9/encoding)
+* [iconv-lite on GitHub](https://github.com/ashtuchkin/iconv-lite)
+* [Clipboardy on GitHub](https://github.com/sindresorhus/clipboardy)
+* [nrf-intel-hex on GitHub](https://github.com/NordicSemiconductor/nrf-intel-hex)
 
 ## License
 
