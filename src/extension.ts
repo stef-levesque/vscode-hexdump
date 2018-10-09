@@ -365,7 +365,8 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            var pos = e.document.validatePosition(getPosition(index));
+            // Translate one to be in the middle of the byte
+            const pos = e.document.validatePosition(getPosition(index).translate(0,1));
             e.selection = new vscode.Selection(pos, pos);
             e.revealRange(new vscode.Range(pos, pos));
 
@@ -410,7 +411,8 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const pos = e.document.validatePosition(getPosition(index));
+        // Translate one to be in the middle of the byte
+        const pos = e.document.validatePosition(getPosition(index).translate(0,1));
         e.selection = new vscode.Selection(pos, pos);
         e.revealRange(new vscode.Range(pos, pos));
     }));
