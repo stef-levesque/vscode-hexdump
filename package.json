@@ -232,8 +232,8 @@
         "when": "editorLangId == hexdump"
       },
       {
-        "key": "ctrl+shift+f",
-        "mac": "cmd+shift+f",
+        "key": "alt+ctrl+f",
+        "mac": "alt+cmd+f",
         "command": "hexdump.searchHex",
         "when": "editorLangId == hexdump"
       },
