@@ -20,11 +20,11 @@ export default class HexdumpHoverProvider {
             const showInspector = vscode.workspace.getConfiguration('hexdump').get<boolean>('showInspector');
 
             if (!showInspector) {
-                return;
+                return resolve();
             }
             let offset = getOffset(position);
             if (typeof offset == 'undefined') {
-                return;
+                return resolve();
             }
 
             var content: string = 'Hex Inspector';
@@ -41,7 +41,7 @@ export default class HexdumpHoverProvider {
 
             let buf = getBuffer(document.uri);
             if (typeof buf == 'undefined') {
-                return;
+                return resolve();
             }
 
             let arrbuf = toArrayBuffer(buf, offset, 8);
