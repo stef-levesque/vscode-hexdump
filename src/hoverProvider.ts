@@ -13,7 +13,7 @@ export default class HexdumpHoverProvider {
     public dispose() {
 
     }
-    
+
     public async provideHover(document, position, token) : Promise<vscode.Hover> { 
         return new Promise<vscode.Hover>((resolve) => {
             const charEncoding = vscode.workspace.getConfiguration('hexdump').get<string>('charEncoding');
@@ -47,16 +47,16 @@ export default class HexdumpHoverProvider {
 
             let arrbuf = toArrayBuffer(buf, offset, 8);
             var view = new DataView(arrbuf);
-            var uint64 = Long.fromBytes(new Uint8Array(arrbuf), true, littleEndian);
-            var int64 = Long.fromBytes(new Uint8Array(arrbuf), false, littleEndian);
+
             content += 'Int8:   ' + sprintf('%12d', view.getInt8(0)) + '\t';
             content += 'Uint8:  ' + sprintf('%12d', view.getUint8(0)) + ' \n';
             content += 'Int16:  ' + sprintf('%12d', view.getInt16(0, littleEndian)) + '\t';
             content += 'Uint16: ' + sprintf('%12d', view.getUint16(0, littleEndian)) + ' \n';
             content += 'Int32:  ' + sprintf('%12d', view.getInt32(0, littleEndian)) + '\t';
             content += 'Uint32: ' + sprintf('%12d', view.getUint32(0, littleEndian)) + ' \n';
-            content += 'Int64:   ' + int64.toString() + '\n';
-            content += 'Uint64:  ' + uint64.toString() + '\n';
+            content += 'Int64:  ' + Long.fromBytes(new Uint8Array(arrbuf), true, littleEndian).toString() + ' \n';
+            content += 'Uint64: ' + Long.fromBytes(new Uint8Array(arrbuf), false, littleEndian).toString() + ' \n';
+
             content += 'Float32: ' + sprintf('%f', view.getFloat32(0, littleEndian)) + ' \n';
             content += 'Float64: ' + sprintf('%f', view.getFloat64(0, littleEndian)) + ' \n';
             content += '\n';
