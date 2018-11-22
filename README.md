@@ -89,6 +89,7 @@ Visual Studio Code v1.17.0
 * [iconv-lite on GitHub](https://github.com/ashtuchkin/iconv-lite)
 * [Clipboardy on GitHub](https://github.com/sindresorhus/clipboardy)
 * [nrf-intel-hex on GitHub](https://github.com/NordicSemiconductor/nrf-intel-hex)
+* [long.js on GitHub](https://github.com/dcodeIO/long.js)
 
 ## License
 
