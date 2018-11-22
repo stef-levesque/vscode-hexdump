@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import { sprintf } from 'sprintf-js';
+import * as Long from 'long';
 
 var iconvLite = require('iconv-lite');
 
@@ -53,6 +54,8 @@ export default class HexdumpHoverProvider {
             content += 'Uint16: ' + sprintf('%12d', view.getUint16(0, littleEndian)) + ' \n';
             content += 'Int32:  ' + sprintf('%12d', view.getInt32(0, littleEndian)) + '\t';
             content += 'Uint32: ' + sprintf('%12d', view.getUint32(0, littleEndian)) + ' \n';
+            content += 'Int64:  ' + Long.fromBytes(new Uint8Array(arrbuf), true, littleEndian).toString() + ' \n';
+            content += 'Uint64: ' + Long.fromBytes(new Uint8Array(arrbuf), false, littleEndian).toString() + ' \n';
             content += 'Float32: ' + sprintf('%f', view.getFloat32(0, littleEndian)) + ' \n';
             content += 'Float64: ' + sprintf('%f', view.getFloat64(0, littleEndian)) + ' \n';
             content += '\n';
