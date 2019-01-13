@@ -112,6 +112,11 @@
         "when": "editorLangId == hexdump"
       },
       {
+        "command": "hexdump.copyAsGolang",
+        "title": "Copy the buffer selection as Go source",
+        "when": "editorLangId == hexdump"
+      },
+      {
         "command": "hexdump.copyAsJava",
         "title": "Copy the buffer selection as Java source",
         "when": "editorLangId == hexdump"
