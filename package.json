@@ -137,6 +137,11 @@
         "when": "editorLangId == hexdump"
       },
       {
+        "command": "hexdump.copyAsLiteral",
+        "title": "Copy the buffer selection as a string literal",
+        "when": "editorLangId == hexdump"
+      },
+      {
         "command": "hexdump.copyAsIntelHex",
         "title": "Copy the buffer selection as Intel Hex",
         "when": "editorLangId == hexdump"
