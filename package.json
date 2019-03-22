@@ -148,6 +148,72 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "hexdump.editValue",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.gotoAddress",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.exportToFile",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.toggleEndian",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.searchString",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.searchHex",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsFormat",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsText",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsC",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsGolang",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsJava",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsJSON",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsBase64",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsHexString",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsLiteral",
+          "when": "editorLangId == hexdump"
+        },
+        {
+          "command": "hexdump.copyAsIntelHex",
+          "when": "editorLangId == hexdump"
+        }
+      ],
       "explorer/context": [
         {
           "command": "hexdump.hexdumpFile"
