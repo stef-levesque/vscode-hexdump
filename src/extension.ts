@@ -15,7 +15,6 @@ export function activate(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration('hexdump');
     const charEncoding: string = config['charEncoding'];
     const btnEnabled: string = config['btnEnabled'];
-    let littleEndian = config['littleEndian'];
 
     let statusBar = new HexdumpStatusBar();
     context.subscriptions.push(statusBar);
@@ -329,7 +328,9 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.toggleEndian', () => {
-        littleEndian = !littleEndian;
+        let config = vscode.workspace.getConfiguration('hexdump');
+        const littleEndian = config.get('littleEndian');
+        config.update('littleEndian', !littleEndian);
         statusBar.update();
     }));
 
