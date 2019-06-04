@@ -520,7 +520,7 @@ export function activate(context: vscode.ExtensionContext) {
         let e = vscode.window.activeTextEditor;
         let buffer = getBufferSelection(e.document, e.selection);
         if (buffer) {
-            clipboardy.write(buffer.toJSON().toString());
+            clipboardy.write(JSON.stringify(buffer));
         }
     }));
 
