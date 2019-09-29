@@ -315,13 +315,19 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
+        var entry = getEntry(d.uri);
         let filepath = getPhysicalPath(d.uri);
-        var buf = getBuffer(d.uri);
+        var buf = entry.buffer;
         fs.writeFile(filepath, buf, (err) => {
             if (err) {
                 return vscode.window.setStatusBarMessage('Hexdump: ERROR ' + err, 3000);
             }
 
+            entry.isDirty = false;
+            entry.decorations = [];
+            provider.update(d.uri);
+            statusBar.update();
+            triggerUpdateDecorations(e);
             vscode.window.setStatusBarMessage('Hexdump: exported to ' + filepath, 3000);
         });
 

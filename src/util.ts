@@ -105,6 +105,8 @@ export function getRanges(startOffset: number, endOffset: number, ascii: boolean
 interface IEntry {
     buffer: Buffer;
     isDirty: boolean;
+    waiting: boolean;
+    watcher: fs.FSWatcher;
     decorations?: vscode.Range[];
 }
 
@@ -132,14 +134,25 @@ export function getEntry(uri: vscode.Uri): IEntry | undefined {
     
     let buf = fs.readFileSync(filepath);
     
-    fs.watch(filepath, function(event, name)
-    {
-        dict[filepath] = { buffer: fs.readFileSync(filepath), isDirty: false };
-        HexdumpContentProvider.instance.update(uri);
-        
-    });
+    // fs watch listener
+    const fileListener = (event: string, name: string | Buffer) => {
+        if(dict[filepath].waiting === false) {
+            dict[filepath].waiting = true;
+            setTimeout(() => {
+                const currentWatcher = dict[filepath].watcher;
+                const newWatcher = fs.watch(filepath, fileListener);
+                dict[filepath] = { buffer: fs.readFileSync(filepath), isDirty: false, waiting: false, watcher: newWatcher, decorations:[] };
+                HexdumpContentProvider.instance.update(uri);
+                if(vscode.window.activeTextEditor.document.uri === uri) {
+                  updateDecorations(vscode.window.activeTextEditor);
+                }
+                currentWatcher.close();
+            }, 100);
+        }
+    }
+    const watcher = fs.watch(filepath, fileListener);
 
-    dict[filepath] = { buffer: buf, isDirty: false };
+    dict[filepath] = { buffer: buf, isDirty: false, waiting: false, watcher };
     
     return dict[filepath];
 }
@@ -181,7 +194,7 @@ const modifiedDecorationType = vscode.window.createTextEditorDecorationType({
 function updateDecorations(e: vscode.TextEditor) {
     const uri = e.document.uri;
     const entry = getEntry(uri);
-    if (entry && entry.decorations) {
-        e.setDecorations(modifiedDecorationType, entry.decorations);
+    if (entry) {
+        e.setDecorations(modifiedDecorationType, entry.decorations?entry.decorations:[]);
     }
 }
