@@ -36,10 +36,9 @@ export default class HexdumpHoverProvider {
             if (sel.contains(position)) {
                 let start = getOffset(sel.start);
                 let end = getOffset(sel.end);
-                let size = Math.abs(sel.end - sel.start);
-                content += 'Selection: 0x' + sprintf('%08X', start) 
+                let size = Math.abs(sel.end - sel.start)+1;
+                content += 'Selection: '+sprintf('%d', size)+', 0x' + sprintf('%08X', start); 
                 content += ' - 0x' + sprintf('%08X', end) + ' \n';
-                content += 'Size: ' + sprintf('%d', size) + '\n';
             }
 
             let buf = getBuffer(document.uri);
