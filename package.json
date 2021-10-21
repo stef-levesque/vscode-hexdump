@@ -2,9 +2,9 @@
   "name": "vscode-hexdump",
   "displayName": "hexdump for VSCode",
   "description": "Display a specified file in hexadecimal",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "publisher": "slevesque",
-  "license": "LICENSE.md",
+  "license": "LICENSE",
   "icon": "icon.png",
   "bugs": {
     "url": "https://github.com/stef-levesque/vscode-hexdump/issues"
@@ -19,7 +19,7 @@
     "theme": "dark"
   },
   "engines": {
-    "vscode": "^1.17.0"
+    "vscode": "^1.60.0"
   },
   "keywords": [
     "vscode",
@@ -38,6 +38,8 @@
       {
         "id": "hexdump",
         "extensions": [
+          ".bin",
+          ".hex",
           ".hexdump"
         ]
       }
@@ -97,57 +99,179 @@
         "when": "editorLangId == hexdump"
       },
       {
+        "command": "hexdump.showAsBytes",
+        "title": "as 8-bit, Single Bytes",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.showAsWords",
+        "title": "as 16-bit Words",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.showAsDwords",
+        "title": "as 32-bit Words",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.showAsQwords",
+        "title": "as 64-bit Words",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.showAsBin",
+        "title": "as Binary Numbers",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.showAsOct",
+        "title": "as Octal Numbers",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.showAsDec",
+        "title": "as Decimal Numbers",
+        "when": "editorLangId == hexdump"
+      },
+      {
+        "command": "hexdump.showAsHex",
+        "title": "as Hexadecimal Numbers",
+        "when": "editorLangId == hexdump"
+      },
+      {
         "command": "hexdump.copyAsFormat",
-        "title": "Copy the selection in a specific format",
+        "title": "Copy the Selection in a Specific Format",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsText",
-        "title": "Copy the buffer selection as text",
+        "title": "as Text",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsC",
-        "title": "Copy the buffer selection as C source",
+        "title": "as C Source",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsGolang",
-        "title": "Copy the buffer selection as Go source",
+        "title": "as Go Source",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsJava",
-        "title": "Copy the buffer selection as Java source",
+        "title": "as Java Source",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsJSON",
-        "title": "Copy the buffer selection as JSON",
+        "title": "as JSON",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsBase64",
-        "title": "Copy the buffer selection as Base64",
+        "title": "as Base64",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsHexString",
-        "title": "Copy the buffer selection as a hexadecimal string",
+        "title": "as a Hexadecimal String",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsLiteral",
-        "title": "Copy the buffer selection as a string literal",
+        "title": "as a String Literal",
         "when": "editorLangId == hexdump"
       },
       {
         "command": "hexdump.copyAsIntelHex",
-        "title": "Copy the buffer selection as Intel Hex",
+        "title": "as Intel Hex",
         "when": "editorLangId == hexdump"
       }
     ],
+    "submenus": [
+      {
+        "id": "hexdump.copyAs",
+        "label": "Copy As"
+      },
+      {
+        "id": "hexdump.displayAs",
+        "label": "Display As"
+      }
+    ],
     "menus": {
+      "hexdump.copyAs": [
+        {
+          "command": "hexdump.copyAsText",
+          "group": "hexdump.copy@0"
+        },
+        {
+          "command": "hexdump.copyAsC",
+          "group": "hexdump.copy@1"
+        },
+        {
+          "command": "hexdump.copyAsGolang",
+          "group": "hexdump.copy@2"
+        },
+        {
+          "command": "hexdump.copyAsJava",
+          "group": "hexdump.copy@3"
+        },
+        {
+          "command": "hexdump.copyAsJSON",
+          "group": "hexdump.copy@4"
+        },
+        {
+          "command": "hexdump.copyAsBase64",
+          "group": "hexdump.copy@5"
+        },
+        {
+          "command": "hexdump.copyAsHexString",
+          "group": "hexdump.copy@6"
+        },
+        {
+          "command": "hexdump.copyAsLiteral",
+          "group": "hexdump.copy@7"
+        },
+        {
+          "command": "hexdump.copyAsIntelHex",
+          "group": "hexdump.copy@8"
+        }
+      ],
+      "hexdump.displayAs": [
+        {
+          "command": "hexdump.showAsBytes",
+          "group": "hexdump.size@0"
+        },
+        {
+          "command": "hexdump.showAsWords",
+          "group": "hexdump.size@1"
+        },
+        {
+          "command": "hexdump.showAsDwords",
+          "group": "hexdump.size@2"
+        },
+        {
+          "command": "hexdump.showAsQwords",
+          "group": "hexdump.size@3"
+        },
+        {
+          "command": "hexdump.showAsBin",
+          "group": "hexdump.radix@0"
+        },
+        {
+          "command": "hexdump.showAsOct",
+          "group": "hexdump.radix@1"
+        },
+        {
+          "command": "hexdump.showAsDec",
+          "group": "hexdump.radix@2"
+        },
+        {
+          "command": "hexdump.showAsHex",
+          "group": "hexdump.radix@3"
+        }
+      ],
       "commandPalette": [
         {
           "command": "hexdump.editValue",
@@ -264,6 +388,10 @@
         {
           "when": "editorLangId == hexdump",
           "command": "hexdump.copyAsFormat"
+        },
+        {
+          "when": "editorLangId == hexdump",
+          "submenu": "hexdump.displayAs"
         }
       ]
     },
@@ -334,10 +462,17 @@
           "enum": [
             2,
             4,
-            8
+            8,
+            16
           ],
           "default": 2,
-          "description": "How many nibbles per group"
+          "description": "Number of nibbles per group"
+        },
+        "hexdump.radix" : {
+          "type": "number",
+          "enum": [2, 8, 10, 16],
+          "default": 0,
+          "description": "radix to use for displaying the binary data"
         },
         "hexdump.uppercase": {
           "type": "boolean",
@@ -410,7 +545,7 @@
   },
   "dependencies": {
     "clipboardy": "^1.2.3",
-    "hexy": "^0.2.10",
+    "hexy": "^0.3.3",
     "iconv-lite": "^0.4.24",
     "nrf-intel-hex": "^1.3.0",
     "sprintf-js": "^1.0.3",

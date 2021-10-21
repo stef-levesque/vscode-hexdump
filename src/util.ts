@@ -4,8 +4,8 @@ import * as fs from 'fs';
 import HexdumpContentProvider from './contentProvider'
 
 export function getPhysicalPath(uri: vscode.Uri): string {
-    if (uri.scheme === 'hexdump') {
-        // remove the 'hexdump' extension
+    // in case ".hexdump" is appended to the path, it needs to be removed for accessing the underlying file:
+    if (uri.fsPath.endsWith('.hexdump')) {
         let filepath = uri.with({ scheme: 'file' }).fsPath.slice(0, -8);
         return filepath;
     }
@@ -136,17 +136,22 @@ export function getEntry(uri: vscode.Uri): IEntry | undefined {
     
     // fs watch listener
     const fileListener = (event: string, name: string | Buffer) => {
-        if(dict[filepath].waiting === false) {
+        console.warn("fileListener from util.ts is fired")
+        if (dict[filepath].waiting === false) {
             dict[filepath].waiting = true;
             setTimeout(() => {
-                const currentWatcher = dict[filepath].watcher;
-                const newWatcher = fs.watch(filepath, fileListener);
-                dict[filepath] = { buffer: fs.readFileSync(filepath), isDirty: false, waiting: false, watcher: newWatcher, decorations:[] };
-                HexdumpContentProvider.instance.update(uri);
-                if(vscode.window.activeTextEditor.document.uri === uri) {
-                  updateDecorations(vscode.window.activeTextEditor);
+                try {
+                    const currentWatcher = dict[filepath].watcher;
+                    const newWatcher = fs.watch(filepath, fileListener);
+                    dict[filepath] = { buffer: fs.readFileSync(filepath), isDirty: false, waiting: false, watcher: newWatcher, decorations:[] };
+                    HexdumpContentProvider.instance.update(uri);
+                    if (vscode.window.activeTextEditor.document.uri === uri) {
+                        updateDecorations(vscode.window.activeTextEditor);
+                    }
+                    currentWatcher.close();
+                } catch (error) {
+                    console.warn("exception while watching for external file updates: " + error);
                 }
-                currentWatcher.close();
             }, 100);
         }
     }

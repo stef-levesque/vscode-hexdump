@@ -26,7 +26,6 @@ export default class HexdumpStatusBar {
         }, null, this._disposables);
 
         HexdumpStatusBar.s_instance = this;
-
     }
 
     static get instance() {
@@ -49,9 +48,11 @@ export default class HexdumpStatusBar {
 
     public update() {
         let littleEndian = vscode.workspace.getConfiguration('hexdump').get('littleEndian');
+        let uppercase = vscode.workspace.getConfiguration('hexdump').get('uppercase');
 
-        this._statusBarItem.text = littleEndian ? 'hex' : 'HEX';
-        this._statusBarItem.tooltip = littleEndian ? 'Little Endian' : 'Big Endian';
+        this._statusBarItem.text = (uppercase ? 'HEX' : 'hex') + ' ' + (littleEndian ? 'LE' : 'BE');
+        this._statusBarItem.tooltip = (uppercase ? 'Upper' : 'Lower') + ' Case, '
+                                    + (littleEndian ? 'Little' : 'Big') + ' Endian';
 
         let e = vscode.window.activeTextEditor;
         // check if hexdump document

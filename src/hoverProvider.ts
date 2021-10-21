@@ -18,15 +18,18 @@ export default class HexdumpHoverProvider {
         return new Promise<vscode.Hover>((resolve) => {
             const charEncoding = vscode.workspace.getConfiguration('hexdump').get<string>('charEncoding');
             const littleEndian = vscode.workspace.getConfiguration('hexdump').get<boolean>('littleEndian');
+            const nibbles = vscode.workspace.getConfiguration('hexdump').get<number>('nibbles');
             const showInspector = vscode.workspace.getConfiguration('hexdump').get<boolean>('showInspector');
 
             if (!showInspector) {
-                return resolve();
+                return resolve(null);
             }
             let offset = getOffset(position);
             if (typeof offset == 'undefined') {
-                return resolve();
+                return resolve(null);
             }
+
+            offset = (offset >> (nibbles >> 2)) << (nibbles >> 2); // aligning the `offset` with the start of the displayed number
 
             var content: string = 'Hex Inspector';
             content += littleEndian ? ' Little Endian\n' : ' Big Endian\n';
@@ -42,7 +45,7 @@ export default class HexdumpHoverProvider {
 
             let buf = getBuffer(document.uri);
             if (typeof buf == 'undefined') {
-                return resolve();
+                return resolve(null);
             }
 
             let arrbuf = toArrayBuffer(buf, offset, 8);

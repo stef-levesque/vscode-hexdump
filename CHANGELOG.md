@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.0] TBD
+++ endianness, ++ radix, ++ data size; -- few small bugs;
+details:
+* Enabled endianness of displayed data (the main reason behind the change) enabled by the added feature to hexy.js
+* Context Menu: added convenient switch of displaying between 1, 2, 4 and 8 byte words
+* New Functionality: added ability to display bytes as binary, octal, decimal and hexadecimal
+* Context Menu: the above functionality is also accessible via the context menu
+* Bugfix: endiannes was always set to "big", regardless of the UI setting in multi-byte displaying
+* Bugfix: fixed the meaning of endiannes that was incorrectly displayed in the status bar
+* Bugfix: the popup tooltip was showing value of the sequence starting with the byte under cursor, as opposed to the value displayed under the cursor.  This change doesn't affect the 2-nibble (one byte) display mode (need before and after screenshots)
+* Build: fixed build by providing `null` arguments into `resolve()` -- the method requires one argument now
+* Dependency: now depending on hexy.js 0.3.3 (unpublished yet), which supports endianness and radix
+
 ## [1.7.0] 2018-10-08
 * Copy selection in different formats (#41, #43, #47)
 * Add support for multi byte edit (#42, #45, thanks @noam787)

@@ -68,8 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             var buf = getBuffer(e.textEditor.document.uri);
-            if (buf)
-            {
+            if (buf) {
                 if (startOffset >= buf.length) {
                     startOffset = buf.length - 1;
                 }
@@ -142,7 +141,6 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.hexdumpFile', (fileUri) => {
-
         if (typeof fileUri == 'undefined' || !(fileUri instanceof vscode.Uri)) {
             if (vscode.window.activeTextEditor === undefined) {
                 vscode.commands.executeCommand('hexdump.hexdumpPath');
@@ -162,11 +160,9 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             vscode.commands.executeCommand("vscode.open", vscode.Uri.file(filePath));
-
         } else {
             hexdumpFile(fileUri.fsPath);
         }
-
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.editValue', () => {
@@ -306,7 +302,6 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }));
 
-
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.save', () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
@@ -330,13 +325,67 @@ export function activate(context: vscode.ExtensionContext) {
             triggerUpdateDecorations(e);
             vscode.window.setStatusBarMessage('Hexdump: exported to ' + filepath, 3000);
         });
-
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.toggleEndian', () => {
         let config = vscode.workspace.getConfiguration('hexdump');
         const littleEndian = config.get('littleEndian');
         config.update('littleEndian', !littleEndian);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.toggleCollapsing', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        const collapseContiguous = config.get('collapseContiguous');
+        config.update('collapseContiguous', !collapseContiguous);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsBytes', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('nibbles', 2);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsWords', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('nibbles', 4);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsDwords', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('nibbles', 8);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsQwords', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('nibbles', 16);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsBin', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('radix', 2);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsOct', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('radix', 8);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsDec', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('radix', 10);
+        statusBar.update();
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.showAsHex', () => {
+        let config = vscode.workspace.getConfiguration('hexdump');
+        config.update('radix', 16);
         statusBar.update();
     }));
 
@@ -545,7 +594,7 @@ export function activate(context: vscode.ExtensionContext) {
             clipboardy.write(buffer.toString('hex'));
         }
     }));
-    
+
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.copyAsLiteral', () => {
         let e = vscode.window.activeTextEditor;
         let buffer = getBufferSelection(e.document, e.selection);
