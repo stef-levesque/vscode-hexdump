@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.8.0] TBD
+## [1.9.0] TBD
 ++ endianness, ++ radix, ++ data size; -- few small bugs;
 details:
 * Enabled endianness of displayed data (the main reason behind the change) enabled by the added feature to hexy.js
@@ -13,9 +13,12 @@ details:
 * Build: fixed build by providing `null` arguments into `resolve()` -- the method requires one argument now
 * Dependency: now depending on hexy.js 0.3.3 (unpublished yet), which supports endianness and radix
 
+## [1.8.0] 2020-09-10
+* Fix update on save and on file changed (#17, [#66](https://github.com/stef-levesque/vscode-hexdump/issues/66), [#67](https://github.com/stef-levesque/vscode-hexdump/issues/67), thanks @joeywang4)
+
 ## [1.7.0] 2018-10-08
-* Copy selection in different formats (#41, #43, #47)
-* Add support for multi byte edit (#42, #45, thanks @noam787)
+* Copy selection in different formats (#41, [#43](https://github.com/stef-levesque/vscode-hexdump/issues/43), [#47](https://github.com/stef-levesque/vscode-hexdump/issues/47))
+* Add support for multi byte edit (#42, [#45](https://github.com/stef-levesque/vscode-hexdump/issues/45), thanks @noam787)
 * Fix `exportToFile` (#46)
 * Search a HEX string in the file (#48, thanks @jinliming2)
 
@@ -64,7 +67,7 @@ details:
 
 * Customizable value for size warning and line count (#9)
 * Add icon to title context menu (#10)
-* Command text and changelog update (#11, #12, thanks @david-russo)
+* Command text and changelog update (#11, [#12](https://github.com/stef-levesque/vscode-hexdump/issues/12), thanks @david-russo)
 
 ## [1.1.1] 2016-10-25
 
@@ -77,10 +80,10 @@ details:
 
 ## [1.0.0] 2016-10-10
 
-* Update if file changes (#2, #3, thanks @camwar11)
+* Update if file changes (#2, [#3](https://github.com/stef-levesque/vscode-hexdump/issues/3), thanks @camwar11)
 * Switch to [hexy.js](https://www.npmjs.com/package/hexy) (#4, thanks @boguscoder)
 * Highlight selection in both hex and ascii sections (#6)
-* More display options (see Configuration) (#5, #7)
+* More display options (see Configuration) (#5, [#7](https://github.com/stef-levesque/vscode-hexdump/issues/7))
 
 ## [0.1.1] 2016-08-17
 

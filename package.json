@@ -2,7 +2,7 @@
   "name": "vscode-hexdump",
   "displayName": "hexdump for VSCode",
   "description": "Display a specified file in hexadecimal",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "publisher": "slevesque",
   "license": "LICENSE",
   "icon": "icon.png",
@@ -404,7 +404,7 @@
       {
         "key": "shift+enter",
         "command": "hexdump.editValue",
-        "when": "editorTextFocus"
+        "when": "editorTextFocus && editorLangId == hexdump"
       },
       {
         "key": "ctrl+g",
