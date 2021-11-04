@@ -83,16 +83,23 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
     private getHeader(): string {
         const config = vscode.workspace.getConfiguration('hexdump');
         let header = config['showAddress'] ? "  Offset:" : "";
+        let line_width = config['width'];
         let group_size = config['nibbles'] / 2;
         let radix = config['radix'];
-        let group_len = hexy.maxnumberlen(group_size, radix)
-        for (var i = 0; i < config['width']; ++i) {
-            if (i % (config['nibbles'] / 2) == 0) {
-                for (var c = 0; c < 1 + group_len - group_size * 2; c++) {
-                    header += " ";
+        let littleEndian = config['littleEndian'];
+        let group_len = hexy.maxnumberlen(group_size, radix);
+
+        for (var group = 0; group < line_width / group_size; group++) {
+            header += " ".repeat(1 + group_len - (group_size * 2));
+            for (var ii = 0; ii < group_size; ii++) {
+                let column = group * group_size;
+                if (littleEndian) {
+                    column += group_size - ii - 1;
+                } else {
+                    column += ii;
                 }
+                header += sprintf('%02X', column);
             }
-            header += sprintf('%02X', i);
         }
 
         header += "\t\n";
