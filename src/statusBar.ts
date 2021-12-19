@@ -5,7 +5,6 @@ import * as vscode from 'vscode';
 import { getEntry } from './util';
 
 export default class HexdumpStatusBar {
-
     private static s_instance: HexdumpStatusBar = null;
     private _statusBarItem: vscode.StatusBarItem;
     private _disposables: vscode.Disposable[] = [];
@@ -17,7 +16,7 @@ export default class HexdumpStatusBar {
 
         this._statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
 
-        vscode.window.onDidChangeActiveTextEditor((e) => {
+        vscode.window.onDidChangeActiveTextEditor(e => {
             if (e && e.document.languageId === 'hexdump') {
                 this._statusBarItem.show();
             } else {
@@ -38,15 +37,15 @@ export default class HexdumpStatusBar {
             HexdumpStatusBar.s_instance.dispose();
             HexdumpStatusBar.s_instance = null;
         }
-		this._disposables.forEach(d => d.dispose());
-		this._disposables = [];
+        this._disposables.forEach(d => d.dispose());
+        this._disposables = [];
     }
 
     get Item() {
         return this._statusBarItem;
     }
 
-    public update() {
+    public async update() {
         let littleEndian = vscode.workspace.getConfiguration('hexdump').get('littleEndian');
         let uppercase = vscode.workspace.getConfiguration('hexdump').get('uppercase');
 
@@ -55,9 +54,8 @@ export default class HexdumpStatusBar {
                                     + (littleEndian ? 'Little' : 'Big') + ' Endian';
 
         let e = vscode.window.activeTextEditor;
-        // check if hexdump document
         if (e && e.document.uri.scheme === 'hexdump') {
-            if (getEntry(e.document.uri).isDirty) {
+            if ((await getEntry(e.document.uri)).isDirty) {
                 this._statusBarItem.text += ' (modified)';
             }
         }

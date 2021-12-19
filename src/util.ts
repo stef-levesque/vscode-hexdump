@@ -1,32 +1,38 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
-import HexdumpContentProvider from './contentProvider'
+import HexdumpContentProvider from './contentProvider';
 
-export function getPhysicalPath(uri: vscode.Uri): string {
-    // in case ".hexdump" is appended to the path, it needs to be removed for accessing the underlying file:
-    if (uri.fsPath.endsWith('.hexdump')) {
-        let filepath = uri.with({ scheme: 'file' }).fsPath.slice(0, -8);
-        return filepath;
+export function fakeUri(uri: vscode.Uri): vscode.Uri { // TODO: would be great not to do that at all
+    if (uri.scheme === 'hexdump') {
+        return uri;
     }
 
-    return uri.fsPath;
+    return uri.with({
+        authority: '',
+        path: uri.toString() + '.hexdump',
+        scheme: 'hexdump',
+        query: '',
+        fragment: ''
+    });
 }
 
-export function getFileSize(uri: vscode.Uri) : Number {
-    var filepath = getPhysicalPath(uri);
-    var fstat = fs.statSync(filepath);
-    return fstat ? fstat['size'] : -1;
+export function realUri(uri: vscode.Uri): vscode.Uri {
+    // in case ".hexdump" is appended to the path, it needs to be removed for accessing the underlying file:
+    if (uri.path.endsWith('hexdump')) {
+        return vscode.Uri.parse(uri.path.slice(0, - '.hexdump'.length));
+    }
+
+    return uri;
 }
 
-export function getOffset(pos: vscode.Position) : number {
+export function getOffset(pos: vscode.Position): number { // TODO: handle 8 byte (16 nibbles) mode, and LE mode
     var config = vscode.workspace.getConfiguration('hexdump');
     var firstLine: number = config['showOffset'] ? 1 : 0;
     var hexLineLength: number = config['width'] * 2;
     var firstByteOffset: number = config['showAddress'] ? 10 : 0;
     var lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
     var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
-    var lastAsciiOffset: number = firstAsciiOffset + config['width'];
 
     // check if within a valid section
     if (pos.line < firstLine || pos.character < firstByteOffset) {
@@ -35,7 +41,7 @@ export function getOffset(pos: vscode.Position) : number {
 
     var offset = (pos.line - firstLine) * config['width'];
     var s = pos.character - firstByteOffset;
-    if (pos.character >= firstByteOffset && pos.character <= lastByteOffset ) {
+    if (pos.character >= firstByteOffset && pos.character <= lastByteOffset) {
         // byte section
         if (config['nibbles'] == 8) {
             offset += Math.floor(s / 9) + Math.floor((s + 2) / 9) + Math.floor((s + 4) / 9) + Math.floor((s + 6) / 9);
@@ -46,19 +52,18 @@ export function getOffset(pos: vscode.Position) : number {
         }
     } else if (pos.character >= firstAsciiOffset) {
         // ascii section
-        offset += (pos.character - firstAsciiOffset);
+        offset += pos.character - firstAsciiOffset;
     }
     return offset;
 }
 
-export function getPosition(offset: number, ascii: Boolean = false) : vscode.Position {
+export function getPosition(offset: number, ascii: Boolean = false): vscode.Position {
     var config = vscode.workspace.getConfiguration('hexdump');
     var firstLine: number = config['showOffset'] ? 1 : 0;
     var hexLineLength: number = config['width'] * 2;
     var firstByteOffset: number = config['showAddress'] ? 10 : 0;
     var lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
     var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
-    var lastAsciiOffset: number = firstAsciiOffset + config['width'];
 
     let row = firstLine + Math.floor(offset / config['width']);
     let column = offset % config['width'];
@@ -93,102 +98,75 @@ export function getRanges(startOffset: number, endOffset: number, ascii: boolean
     var ranges = [];
     var firstOffset = ascii ? firstAsciiOffset : firstByteOffset;
     var lastOffset = ascii ? lastAsciiOffset : lastByteOffset;
-    for (var i=startPos.line; i<=endPos.line; ++i) {
-        var start = new vscode.Position(i, (i == startPos.line ? startPos.character : firstOffset));
-        var end = new vscode.Position(i, (i == endPos.line ? endPos.character : lastOffset));
+    for (var i = startPos.line; i <= endPos.line; ++i) {
+        var start = new vscode.Position(i, i == startPos.line ? startPos.character : firstOffset);
+        var end = new vscode.Position(i, i == endPos.line ? endPos.character : lastOffset);
         ranges.push(new vscode.Range(start, end));
     }
 
     return ranges;
 }
 
-interface IEntry {
-    buffer: Buffer;
+export interface IEntry {
+    data: Uint8Array;
     isDirty: boolean;
-    waiting: boolean;
-    watcher: fs.FSWatcher;
+    isDeleted: boolean;
     decorations?: vscode.Range[];
 }
 
-interface Map<T> {
-    [uri: string]: T;
+const _files = new Map<string, IEntry>(); // this map contains the contents of the known files indexed by their names
+
+async function resetFile(uri: vscode.Uri) {
+    let entry: IEntry = { data: await fs.promises.readFile(uri.fsPath), isDirty: false, isDeleted: false };
+    _files.set(uri.toString(), entry);
 }
 
-let dict: Map<IEntry> = {};
+export async function getEntry(hexdumpUri: vscode.Uri): Promise<IEntry> {
+    if (hexdumpUri.scheme === 'hexdump') {
+        const physicalUri = realUri(hexdumpUri);
 
-export function getBuffer(uri: vscode.Uri) : Buffer | undefined {
-    return getEntry(uri).buffer;
-}
+        if (!_files.has(physicalUri.toString())) { // never seen this file before: read it AND create watcher
+            let watcher = vscode.workspace.createFileSystemWatcher(physicalUri.fsPath, false, false, false);
+            // TODO: the `onDidDelete()` never fires if the whole directory has been deleted.  Need to monitor the whole chain of parent directories
+            watcher.onDidChange(async uri => {
+                await resetFile(uri);
+                HexdumpContentProvider.instance.update(fakeUri(uri));
+            });
+            watcher.onDidCreate(async uri => {
+                await resetFile(uri);
+                HexdumpContentProvider.instance.update(fakeUri(uri));
+            });
+            watcher.onDidDelete(async uri => {
+                let entry: IEntry = { data: null, isDirty: false, isDeleted: true };
+                _files.set(uri.toString(), entry);
+                HexdumpContentProvider.instance.update(fakeUri(uri));
+            });
 
-export function getEntry(uri: vscode.Uri): IEntry | undefined {
-    // ignore text files with hexdump syntax
-    if (uri.scheme !== 'hexdump') {
-        return;
-    }
-
-    var filepath = getPhysicalPath(uri);
-
-    if (dict[filepath]) {
-        return dict[filepath];
-    }
-    
-    let buf = fs.readFileSync(filepath);
-    
-    // fs watch listener
-    const fileListener = (event: string, name: string | Buffer) => {
-        console.warn("fileListener from util.ts is fired")
-        if (dict[filepath].waiting === false) {
-            dict[filepath].waiting = true;
-            setTimeout(() => {
-                try {
-                    const currentWatcher = dict[filepath].watcher;
-                    const newWatcher = fs.watch(filepath, fileListener);
-                    dict[filepath] = { buffer: fs.readFileSync(filepath), isDirty: false, waiting: false, watcher: newWatcher, decorations:[] };
-                    HexdumpContentProvider.instance.update(uri);
-                    if (vscode.window.activeTextEditor.document.uri === uri) {
-                        updateDecorations(vscode.window.activeTextEditor);
-                    }
-                    currentWatcher.close();
-                } catch (error) {
-                    console.warn("exception while watching for external file updates: " + error);
-                }
-            }, 100);
+            await resetFile(physicalUri); // adds the entry to the `_files`
+            console.log("total files tracking: " + _files.size);
         }
+        return _files.get(physicalUri.toString());
     }
-    const watcher = fs.watch(filepath, fileListener);
-
-    dict[filepath] = { buffer: buf, isDirty: false, waiting: false, watcher };
-    
-    return dict[filepath];
-}
-
-
-export function toArrayBuffer(buffer: Buffer, offset: number, length: number): ArrayBuffer {
-    var ab = new ArrayBuffer(buffer.length);
-    var view = new Uint8Array(ab);
-    for (var i = 0; i < buffer.length; ++i) {
-        view[i] = buffer[offset + i];
-    }
-    return ab;
+    return null;
 }
 
 export function triggerUpdateDecorations(e: vscode.TextEditor) {
     setTimeout(updateDecorations, 500, e);
 }
 
-export function getBufferSelection(document: vscode.TextDocument, selection?: vscode.Selection): Buffer | undefined {
-    let buf = getBuffer(document.uri);
-    if (typeof buf == 'undefined') {
+export async function getBufferSelection(document: vscode.TextDocument, selection?: vscode.Selection): Promise<Buffer | undefined> {
+    const entry = await getEntry(document.uri);
+    if (entry.isDeleted || !entry.data) {
         return;
     }
 
     if (selection && !selection.isEmpty) {
         let start = getOffset(selection.start);
         let end = getOffset(selection.end) + 1;
-        return buf.slice(start, end);
+        return Buffer.from(entry.data.slice(start, end));
     }
-    
-    return buf;
+
+    return Buffer.from(entry.data);
 }
 
 // create a decorator type that we use to mark modified bytes
@@ -196,10 +174,10 @@ const modifiedDecorationType = vscode.window.createTextEditorDecorationType({
     backgroundColor: 'rgba(255,0,0,1)'
 });
 
-function updateDecorations(e: vscode.TextEditor) {
+async function updateDecorations(e: vscode.TextEditor) {
     const uri = e.document.uri;
-    const entry = getEntry(uri);
-    if (entry) {
-        e.setDecorations(modifiedDecorationType, entry.decorations?entry.decorations:[]);
+    const entry = await getEntry(uri);
+    if (entry && entry.decorations) {
+        e.setDecorations(modifiedDecorationType, entry.decorations);
     }
 }

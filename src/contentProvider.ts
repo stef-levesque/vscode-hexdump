@@ -3,15 +3,13 @@
 import * as vscode from 'vscode';
 import { sprintf } from 'sprintf-js';
 
-import { getFileSize, getBuffer } from './util';
+import { getEntry } from './util';
 
 var hexy = require('hexy');
 
 
 export default class HexdumpContentProvider implements vscode.TextDocumentContentProvider {
-
     private static s_instance: HexdumpContentProvider = null;
-    private _currentUri = null;
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
 
     constructor() {
@@ -40,34 +38,45 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
 
         return new Promise( async (resolve) => {
             let hexyFmt = {
-                format      : config['nibbles'] == 16 ? 'sixteens' :
-                              config['nibbles'] == 8 ? 'eights' :
-                              config['nibbles'] == 4 ? 'fours' :
-                                                       'twos',
+                format      : config['nibbles'] == 16 ? 'sixteens'
+                            : config['nibbles'] == 8 ? 'eights'
+                            : config['nibbles'] == 4 ? 'fours'
+                            :                          'twos',
                 radix       : config['radix'],
                 littleEndian: config['littleEndian'],
                 width       : config['width'],
                 caps        : config['uppercase'] ? 'upper' : 'lower',
-                numbering   : config['showAddress'] ? "hex_digits" : "none",
-                annotate    : config['showAscii'] ? "ascii" : "none",
+                numbering   : config['showAddress'] ? 'hex_digits' : 'none',
+                annotate    : config['showAscii'] ? 'ascii' : 'none',
                 length      : sizeDisplay
             };
 
-            let header = config['showOffset'] ? this.getHeader() : "";
-            let tail = '(Reached the maximum size to display. You can change "hexdump.sizeDisplay" in your settings.)';
+            let header = config['showOffset'] ? this.getHeader() : '';
+            let tail = "(Reached the maximum size to display. You can change `hexdump.sizeDisplay` in your settings.)";
 
-            let proceed = getFileSize(uri) < sizeWarning ? 'Open' : await vscode.window.showWarningMessage('File might be too big, are you sure you want to continue?', 'Open');
-            if (proceed == 'Open') {
-                let buf = getBuffer(uri);
-                let hexString = header;
-                hexString += hexy.hexy(buf, hexyFmt).toString();
-                if (buf.length > sizeDisplay) {
-                    hexString += tail;
-                }
-
-                return resolve(hexString);
+            let entry = await getEntry(uri);
+            if (entry.isDeleted || !entry.data) {
+                return resolve("the file has been deleted");
             } else {
-                return resolve('(hexdump cancelled.)');
+                let proceed =
+                    entry.data.byteLength < sizeWarning
+                        ? 'Open'
+                        : await vscode.window.showWarningMessage(
+                            "File might be too big, are you sure you want to continue?",
+                            { modal: true },
+                            'Open',
+                            'Cancel'
+                        );
+                if (proceed == 'Open') {
+                    let hexString = header;
+                    hexString += hexy.hexy(entry.data, hexyFmt).toString();
+                    if (entry.data.length > sizeDisplay) {
+                        hexString += tail;
+                    }
+                    return resolve(hexString);
+                } else {
+                    return resolve("(hexdump cancelled.)"); // TODO: remove this by only coverting the visible part + delta
+                }
             }
         });
     }
@@ -98,7 +107,7 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
                 } else {
                     column += ii;
                 }
-                header += sprintf('%02X', column);
+                header += sprintf("%02X", column);
             }
         }
 
