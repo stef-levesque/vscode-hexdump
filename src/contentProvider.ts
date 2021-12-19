@@ -3,9 +3,9 @@
 import * as vscode from 'vscode';
 import { sprintf } from 'sprintf-js';
 
-import { getEntry } from './util';
+import { getEntry, Format, getHexyFormat } from './util';
 
-var hexy = require('hexy');
+const hexy = require('hexy');
 
 
 export default class HexdumpContentProvider implements vscode.TextDocumentContentProvider {
@@ -34,31 +34,17 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
     public provideTextDocumentContent(uri: vscode.Uri): Thenable<string> {
         const config = vscode.workspace.getConfiguration('hexdump');
         const sizeWarning = config['sizeWarning'];
-        const sizeDisplay = config['sizeDisplay'];
 
         return new Promise( async (resolve) => {
-            let hexyFmt = {
-                format      : config['nibbles'] == 16 ? 'sixteens'
-                            : config['nibbles'] == 8 ? 'eights'
-                            : config['nibbles'] == 4 ? 'fours'
-                            :                          'twos',
-                radix       : config['radix'],
-                littleEndian: config['littleEndian'],
-                width       : config['width'],
-                caps        : config['uppercase'] ? 'upper' : 'lower',
-                numbering   : config['showAddress'] ? 'hex_digits' : 'none',
-                annotate    : config['showAscii'] ? 'ascii' : 'none',
-                length      : sizeDisplay
-            };
+            const entry = await getEntry(uri);
+            const format = entry.format;
+            const header = format.showAddress ? this.getHeader(format) : '';
+            const tail = "(Reached the maximum size to display. You can change `hexdump.sizeDisplay` in your settings.)";
 
-            let header = config['showOffset'] ? this.getHeader() : '';
-            let tail = "(Reached the maximum size to display. You can change `hexdump.sizeDisplay` in your settings.)";
-
-            let entry = await getEntry(uri);
             if (entry.isDeleted || !entry.data) {
                 return resolve("the file has been deleted");
             } else {
-                let proceed =
+                const proceed =
                     entry.data.byteLength < sizeWarning
                         ? 'Open'
                         : await vscode.window.showWarningMessage(
@@ -69,8 +55,8 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
                         );
                 if (proceed == 'Open') {
                     let hexString = header;
-                    hexString += hexy.hexy(entry.data, hexyFmt).toString();
-                    if (entry.data.length > sizeDisplay) {
+                    hexString += hexy.hexy(entry.data, getHexyFormat(format)).toString();
+                    if (entry.data.length > format.sizeDisplay) {
                         hexString += tail;
                     }
                     return resolve(hexString);
@@ -89,18 +75,17 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
         this._onDidChange.fire(uri);
     }
 
-    private getHeader(): string {
-        const config = vscode.workspace.getConfiguration('hexdump');
-        let header = config['showAddress'] ? "  Offset:" : "";
-        let line_width = config['width'];
-        let group_size = config['nibbles'] / 2;
-        let radix = config['radix'];
-        let littleEndian = config['littleEndian'];
+    private getHeader(format: Format): string {
+        let header = format.showAddress ? "  Offset:" : "";
+        let line_width = format.width;
+        let group_size = format.nibbles / 2;
+        let radix = format.radix;
+        let littleEndian = format.littleEndian;
         let group_len = hexy.maxnumberlen(group_size, radix);
 
-        for (var group = 0; group < line_width / group_size; group++) {
+        for (let group = 0; group < line_width / group_size; group++) {
             header += " ".repeat(1 + group_len - (group_size * 2));
-            for (var ii = 0; ii < group_size; ii++) {
+            for (let ii = 0; ii < group_size; ii++) {
                 let column = group * group_size;
                 if (littleEndian) {
                     column += group_size - ii - 1;

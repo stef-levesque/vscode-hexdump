@@ -27,20 +27,20 @@ export function realUri(uri: vscode.Uri): vscode.Uri {
 }
 
 export function getOffset(pos: vscode.Position): number { // TODO: handle 8 byte (16 nibbles) mode, and LE mode
-    var config = vscode.workspace.getConfiguration('hexdump');
-    var firstLine: number = config['showOffset'] ? 1 : 0;
-    var hexLineLength: number = config['width'] * 2;
-    var firstByteOffset: number = config['showAddress'] ? 10 : 0;
-    var lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
+    const config = vscode.workspace.getConfiguration('hexdump');
+    const firstLine: number = config['showOffset'] ? 1 : 0;
+    const hexLineLength: number = config['width'] * 2;
+    const firstByteOffset: number = config['showAddress'] ? 10 : 0;
+    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
+    const firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
 
     // check if within a valid section
     if (pos.line < firstLine || pos.character < firstByteOffset) {
         return;
     }
 
-    var offset = (pos.line - firstLine) * config['width'];
-    var s = pos.character - firstByteOffset;
+    let offset = (pos.line - firstLine) * config['width'];
+    const s = pos.character - firstByteOffset;
     if (pos.character >= firstByteOffset && pos.character <= lastByteOffset) {
         // byte section
         if (config['nibbles'] == 8) {
@@ -58,12 +58,12 @@ export function getOffset(pos: vscode.Position): number { // TODO: handle 8 byte
 }
 
 export function getPosition(offset: number, ascii: Boolean = false): vscode.Position {
-    var config = vscode.workspace.getConfiguration('hexdump');
-    var firstLine: number = config['showOffset'] ? 1 : 0;
-    var hexLineLength: number = config['width'] * 2;
-    var firstByteOffset: number = config['showAddress'] ? 10 : 0;
-    var lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
+    const config = vscode.workspace.getConfiguration('hexdump');
+    const firstLine: number = config['showOffset'] ? 1 : 0;
+    const hexLineLength: number = config['width'] * 2;
+    const firstByteOffset: number = config['showAddress'] ? 10 : 0;
+    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
+    const firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
 
     let row = firstLine + Math.floor(offset / config['width']);
     let column = offset % config['width'];
@@ -84,40 +84,99 @@ export function getPosition(offset: number, ascii: Boolean = false): vscode.Posi
 }
 
 export function getRanges(startOffset: number, endOffset: number, ascii: boolean): vscode.Range[] {
-    var config = vscode.workspace.getConfiguration('hexdump');
-    var hexLineLength: number = config['width'] * 2;
-    var firstByteOffset: number = config['showAddress'] ? 10 : 0;
-    var lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    var firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
-    var lastAsciiOffset: number = firstAsciiOffset + config['width'];
+    const config = vscode.workspace.getConfiguration('hexdump');
+    const hexLineLength: number = config['width'] * 2;
+    const firstByteOffset: number = config['showAddress'] ? 10 : 0;
+    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
+    const firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
+    const lastAsciiOffset: number = firstAsciiOffset + config['width'];
 
-    var startPos = getPosition(startOffset, ascii);
-    var endPos = getPosition(endOffset, ascii);
+    const startPos = getPosition(startOffset, ascii);
+    let endPos = getPosition(endOffset, ascii);
     endPos = new vscode.Position(endPos.line, endPos.character + (ascii ? 1 : 2));
 
-    var ranges = [];
-    var firstOffset = ascii ? firstAsciiOffset : firstByteOffset;
-    var lastOffset = ascii ? lastAsciiOffset : lastByteOffset;
-    for (var i = startPos.line; i <= endPos.line; ++i) {
-        var start = new vscode.Position(i, i == startPos.line ? startPos.character : firstOffset);
-        var end = new vscode.Position(i, i == endPos.line ? endPos.character : lastOffset);
+    let ranges = [];
+    const firstOffset = ascii ? firstAsciiOffset : firstByteOffset;
+    const lastOffset = ascii ? lastAsciiOffset : lastByteOffset;
+    for (let i = startPos.line; i <= endPos.line; ++i) {
+        const start = new vscode.Position(i, i == startPos.line ? startPos.character : firstOffset);
+        const end = new vscode.Position(i, i == endPos.line ? endPos.character : lastOffset);
         ranges.push(new vscode.Range(start, end));
     }
 
     return ranges;
 }
 
+export interface Format {
+    nibbles     : number,
+    radix       : number,
+    littleEndian: boolean,
+    width       : number,
+    uppercase   : boolean,
+    showAddress : boolean,
+    showAscii   : boolean,
+    sizeDisplay : number
+};
+
+// this is the version of `Format` that is sent to `hexy`
+// you can convert `Format` to `HexyFormat` by calling `getHexyFormat()`
+export interface HexyFormat {
+    format      : string,  // corresponds to `Format.nibbles: number`
+    radix       : number,
+    littleEndian: boolean,
+    width       : number,
+    caps        : string, // corresponds to `Format.uppercase: boolean`
+    numbering   : string, // corresponds to `Format.showAddress: boolean`
+    annotate    : string, // corresponds to `Format.showAscii: boolean`
+    length      : number
+};
+
 export interface IEntry {
-    data: Uint8Array;
-    isDirty: boolean;
-    isDeleted: boolean;
+    data        : Uint8Array;
+    isDirty     : boolean;
+    isDeleted   : boolean;
+    format      : Format;       // if not set, the default format is applied
     decorations?: vscode.Range[];
 }
 
 const _files = new Map<string, IEntry>(); // this map contains the contents of the known files indexed by their names
 
+
+function getDefaultFormat(): Format {
+    const config = vscode.workspace.getConfiguration('hexdump');
+    const result: Format = {
+        nibbles     : config['nibbles'],
+        radix       : config['radix'],
+        littleEndian: config['littleEndian'],
+        width       : config['width'],
+        uppercase   : config['uppercase'],
+        showAddress : config['showAddress'],
+        showAscii   : config['showAscii'],
+        sizeDisplay : config['sizeDisplay']
+    };
+    return result;
+}
+
+export function getHexyFormat(format: Format): HexyFormat {
+    const result: HexyFormat = {
+        format      : format.nibbles == 16 ? 'sixteens'
+                    : format.nibbles == 8 ? 'eights'
+                    : format.nibbles == 4 ? 'fours'
+                    :                       'twos',
+        radix       : format.radix,
+        littleEndian: format.littleEndian,
+        width       : format.width,
+        caps        : format.uppercase ? 'upper' : 'lower',
+        numbering   : format.showAddress ? 'hex_digits' : 'none',
+        annotate    : format.showAscii ? 'ascii' : 'none',
+        length      : format.sizeDisplay
+    };
+    return result;
+}
+
 async function resetFile(uri: vscode.Uri) {
-    let entry: IEntry = { data: await fs.promises.readFile(uri.fsPath), isDirty: false, isDeleted: false };
+    const format: Format = (_files.has(uri.toString()) && _files[uri.toString()].format) ? _files[uri.toString()] : getDefaultFormat();
+    let entry: IEntry = { data: await fs.promises.readFile(uri.fsPath), isDirty: false, isDeleted: false, format: format };
     _files.set(uri.toString(), entry);
 }
 
@@ -137,7 +196,8 @@ export async function getEntry(hexdumpUri: vscode.Uri): Promise<IEntry> {
                 HexdumpContentProvider.instance.update(fakeUri(uri));
             });
             watcher.onDidDelete(async uri => {
-                let entry: IEntry = { data: null, isDirty: false, isDeleted: true };
+                const format: Format = (_files.has(uri.toString()) && _files[uri.toString()].format) ? _files[uri.toString()] : getDefaultFormat();
+                let entry: IEntry = { data: null, isDirty: false, isDeleted: true, format: format };
                 _files.set(uri.toString(), entry);
                 HexdumpContentProvider.instance.update(fakeUri(uri));
             });

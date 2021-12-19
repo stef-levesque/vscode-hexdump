@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { sprintf } from 'sprintf-js';
 import * as Long from 'long';
 
-var iconvLite = require('iconv-lite');
+const iconvLite = require('iconv-lite');
 
 import { getEntry, getOffset } from './util';
 
@@ -29,7 +29,7 @@ export default class HexdumpHoverProvider implements vscode.HoverProvider {
 
             offset = (offset >> (nibbles >> 2)) << (nibbles >> 2); // aligning the `offset` with the start of the displayed number
 
-            var content: string = 'Hex Inspector';
+            let content: string = 'Hex Inspector';
             content += littleEndian ? ' Little Endian\n' : ' Big Endian\n';
             content += 'Address: 0x' + sprintf('%08X', offset) + '\n';
 

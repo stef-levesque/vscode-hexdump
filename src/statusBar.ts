@@ -8,6 +8,7 @@ export default class HexdumpStatusBar {
     private static s_instance: HexdumpStatusBar = null;
     private _statusBarItem: vscode.StatusBarItem;
     private _disposables: vscode.Disposable[] = [];
+    private _currentDocument: vscode.TextEditor;
 
     constructor() {
         if (HexdumpStatusBar.s_instance) {
@@ -19,8 +20,11 @@ export default class HexdumpStatusBar {
         vscode.window.onDidChangeActiveTextEditor(e => {
             if (e && e.document.languageId === 'hexdump') {
                 this._statusBarItem.show();
+                this._currentDocument = e;
+                this.update();
             } else {
                 this._statusBarItem.hide();
+                this._currentDocument = undefined;
             }
         }, null, this._disposables);
 
@@ -46,17 +50,20 @@ export default class HexdumpStatusBar {
     }
 
     public async update() {
-        let littleEndian = vscode.workspace.getConfiguration('hexdump').get('littleEndian');
-        let uppercase = vscode.workspace.getConfiguration('hexdump').get('uppercase');
+        if (this._currentDocument) {
+            const entry = getEntry(this._currentDocument.document.uri);
+            let littleEndian = (await entry).format.littleEndian;
+            let uppercase = (await entry).format.uppercase;
 
-        this._statusBarItem.text = (uppercase ? 'HEX' : 'hex') + ' ' + (littleEndian ? 'LE' : 'BE');
-        this._statusBarItem.tooltip = (uppercase ? 'Upper' : 'Lower') + ' Case, '
-                                    + (littleEndian ? 'Little' : 'Big') + ' Endian';
+            this._statusBarItem.text = (uppercase ? "HEX" : "hex") + " " + (littleEndian ? "LE" : "BE");
+            this._statusBarItem.tooltip = (uppercase ? "Upper" : "Lower") + " Case, "
+                                        + (littleEndian ? "Little" : "Big") + " Endian";
 
-        let e = vscode.window.activeTextEditor;
-        if (e && e.document.uri.scheme === 'hexdump') {
-            if ((await getEntry(e.document.uri)).isDirty) {
-                this._statusBarItem.text += ' (modified)';
+            let e = vscode.window.activeTextEditor;
+            if (e && e.document.uri.scheme === 'hexdump') {
+                if ((await getEntry(e.document.uri)).isDirty) {
+                    this._statusBarItem.text += " (modified)";
+                }
             }
         }
     }
