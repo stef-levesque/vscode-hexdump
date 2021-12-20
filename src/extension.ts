@@ -8,7 +8,7 @@ import * as MemoryMap from 'nrf-intel-hex';
 import HexdumpContentProvider from './contentProvider';
 import HexdumpHoverProvider from './hoverProvider';
 import HexdumpStatusBar from './statusBar';
-import { getEntry, getOffset, getPosition, getRanges, triggerUpdateDecorations, getBufferSelection, realUri, fakeUri } from './util';
+import { getEntry, getOffset, getPosition, getRanges, triggerUpdateDecorations, onDocumentClosed, getBufferSelection, realUri, fakeUri } from './util';
 
 export function activate(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration('hexdump');
@@ -98,10 +98,16 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('hexdump', provider));
 
     vscode.window.onDidChangeActiveTextEditor(e => {
-            if (e && e.document && e.document.uri.scheme === 'hexdump') {
-                triggerUpdateDecorations(e);
-            }
-        }, null, context.subscriptions);
+        if (e && e.document && e.document.uri.scheme === 'hexdump') {
+            triggerUpdateDecorations(e);
+        }
+    }, null, context.subscriptions);
+
+    vscode.workspace.onDidCloseTextDocument(doc => {
+        if (doc && doc.uri.scheme === 'hexdump') {
+            onDocumentClosed(doc);
+        }
+    }, null, context.subscriptions);
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.hexdumpPath', () => {
             // Display a message box to the user

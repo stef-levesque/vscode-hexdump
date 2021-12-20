@@ -136,7 +136,8 @@ export interface IEntry {
     isDirty     : boolean;
     isDeleted   : boolean;
     format      : Format;       // if not set, the default format is applied
-    decorations?: vscode.Range[];
+    watcher?    : vscode.FileSystemWatcher;
+    decorations?: vscode.Range[]; 
 }
 
 const _files = new Map<string, IEntry>(); // this map contains the contents of the known files indexed by their names
@@ -174,10 +175,30 @@ export function getHexyFormat(format: Format): HexyFormat {
     return result;
 }
 
-async function resetFile(uri: vscode.Uri) {
-    const format: Format = (_files.has(uri.toString()) && _files[uri.toString()].format) ? _files[uri.toString()] : getDefaultFormat();
-    let entry: IEntry = { data: await fs.promises.readFile(uri.fsPath), isDirty: false, isDeleted: false, format: format };
+async function resetFile(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean, watcher?: vscode.FileSystemWatcher) {
+    let data: Buffer = undefined;
+    try {
+        if (!isDeleted) {
+            data = await fs.promises.readFile(uri.fsPath);
+        }
+    } catch {
+        isDeleted = true;
+    }
+
+    const entry: IEntry = {
+        data: data,
+        isDirty: isDirty,
+        isDeleted: isDeleted,
+        format: (_files.has(uri.toString()) && _files.get(uri.toString()).format) ? _files.get(uri.toString()).format : getDefaultFormat(),
+        watcher: watcher ? watcher : (_files.has(uri.toString())) ? _files.get(uri.toString()).watcher : undefined,
+        decorations: (_files.has(uri.toString())) ? _files.get(uri.toString()).decorations : undefined
+    };
     _files.set(uri.toString(), entry);
+}
+
+async function onChange(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean) {
+    await resetFile(uri, isDirty, isDeleted);
+    HexdumpContentProvider.instance.update(fakeUri(uri));
 }
 
 export async function getEntry(hexdumpUri: vscode.Uri): Promise<IEntry> {
@@ -188,26 +209,28 @@ export async function getEntry(hexdumpUri: vscode.Uri): Promise<IEntry> {
             let watcher = vscode.workspace.createFileSystemWatcher(physicalUri.fsPath, false, false, false);
             // TODO: the `onDidDelete()` never fires if the whole directory has been deleted.  Need to monitor the whole chain of parent directories
             watcher.onDidChange(async uri => {
-                await resetFile(uri);
-                HexdumpContentProvider.instance.update(fakeUri(uri));
+                await onChange(uri, false, false); // TODO: this overwrites local changes.  Ask first
             });
             watcher.onDidCreate(async uri => {
-                await resetFile(uri);
-                HexdumpContentProvider.instance.update(fakeUri(uri));
+                await onChange(uri, false, false);
             });
             watcher.onDidDelete(async uri => {
-                const format: Format = (_files.has(uri.toString()) && _files[uri.toString()].format) ? _files[uri.toString()] : getDefaultFormat();
-                let entry: IEntry = { data: null, isDirty: false, isDeleted: true, format: format };
-                _files.set(uri.toString(), entry);
-                HexdumpContentProvider.instance.update(fakeUri(uri));
+                await onChange(uri, false, true);
             });
 
-            await resetFile(physicalUri); // adds the entry to the `_files`
-            console.log("total files tracking: " + _files.size);
+            await resetFile(physicalUri, false, false, watcher); // adds the entry to the `_files`
         }
         return _files.get(physicalUri.toString());
     }
     return null;
+}
+
+export function onDocumentClosed(doc: vscode.TextDocument) {
+    const uri = realUri(doc.uri).toString();
+    if (_files.has(uri) && _files.get(uri).watcher) {
+        _files.get(uri).watcher.dispose();
+    }
+    _files.delete(uri);
 }
 
 export function triggerUpdateDecorations(e: vscode.TextEditor) {
