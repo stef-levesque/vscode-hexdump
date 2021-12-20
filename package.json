@@ -357,41 +357,50 @@
       ],
       "editor/title/context": [
         {
-          "command": "hexdump.hexdumpFile"
+          "command": "hexdump.hexdumpFile",
+          "when": "hexdump:btnEnabled && resourceScheme == file"
         }
       ],
       "editor/context": [
         {
           "when": "editorLangId == hexdump",
-          "command": "hexdump.editValue"
+          "command": "hexdump.editValue",
+          "group": "edit"
         },
         {
           "when": "editorLangId == hexdump",
-          "command": "hexdump.gotoAddress"
+          "command": "hexdump.gotoAddress",
+          "group": "navigate"
         },
         {
           "when": "editorLangId == hexdump",
-          "command": "hexdump.searchString"
+          "command": "hexdump.searchString",
+          "group": "navigate"
         },
         {
           "when": "editorLangId == hexdump",
-          "command": "hexdump.searchHex"
+          "command": "hexdump.searchHex",
+          "group": "navigate"
         },
         {
           "when": "editorLangId == hexdump",
-          "command": "hexdump.exportToFile"
+          "command": "hexdump.exportToFile",
+          "group": "export"
         },
         {
           "when": "editorLangId == hexdump",
-          "command": "hexdump.toggleEndian"
+          "command": "hexdump.copyAsFormat",
+          "group": "export"
         },
         {
           "when": "editorLangId == hexdump",
-          "command": "hexdump.copyAsFormat"
+          "submenu": "hexdump.displayAs",
+          "group": "view"
         },
         {
           "when": "editorLangId == hexdump",
-          "submenu": "hexdump.displayAs"
+          "command": "hexdump.toggleEndian",
+          "group": "view"
         }
       ]
     },
