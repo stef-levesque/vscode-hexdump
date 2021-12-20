@@ -297,6 +297,16 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }));
 
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.toggleUppercase', async () => {
+        let d = vscode.window.activeTextEditor.document;
+        if (d.uri.scheme === 'hexdump') {
+            let entry = await getEntry(d.uri);
+            entry.format.uppercase = !entry.format.uppercase;
+            HexdumpContentProvider.instance.update(fakeUri(d.uri));
+            statusBar.update();
+        }
+    }));
+
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.toggleCollapsing', async () => {
         let d = vscode.window.activeTextEditor.document;
         if (d.uri.scheme === 'hexdump') {

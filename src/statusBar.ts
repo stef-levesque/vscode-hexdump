@@ -54,9 +54,25 @@ export default class HexdumpStatusBar {
             const entry = getEntry(this._currentDocument.document.uri);
             let littleEndian = (await entry).format.littleEndian;
             let uppercase = (await entry).format.uppercase;
+            let radix: string = "hex";
+            switch ((await entry).format.radix) {
+            case 2:
+                radix = "bin";
+                break;
+            case 8:
+                radix = "oct";
+                break;
+            case 10:
+                radix = "dec";
+                break;
+            default:
+                radix = "hex";
+                break;
+            }
 
-            this._statusBarItem.text = (uppercase ? "HEX" : "hex") + " " + (littleEndian ? "LE" : "BE");
-            this._statusBarItem.tooltip = (uppercase ? "Upper" : "Lower") + " Case, "
+            this._statusBarItem.text = (uppercase ? radix.toUpperCase() : radix) + " " + (littleEndian ? "LE" : "BE");
+            this._statusBarItem.tooltip = (uppercase ? "Upper" : "Lower") + " Case, \n"
+                                        + radix + "\n"
                                         + (littleEndian ? "Little" : "Big") + " Endian";
 
             let e = vscode.window.activeTextEditor;
