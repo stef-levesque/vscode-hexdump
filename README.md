@@ -78,7 +78,7 @@ Colorize modified bytes
 
 ## Requirements
 
-Visual Studio Code v1.17.0
+Visual Studio Code v1.60.0
 
 ## Credits
 

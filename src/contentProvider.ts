@@ -1,20 +1,18 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import { sprintf } from 'sprintf-js';
 
-import { getFileSize, getBuffer } from './util';
+import { getEntry, Format, getHexyFormat } from './util';
 
-var hexdump = require('hexy');
+const hexy = require('hexy');
+
 
 export default class HexdumpContentProvider implements vscode.TextDocumentContentProvider {
-    
     private static s_instance: HexdumpContentProvider = null;
     private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
 
     constructor() {
-        if(HexdumpContentProvider.s_instance) {
+        if (HexdumpContentProvider.s_instance) {
             HexdumpContentProvider.s_instance.dispose();
         }
         HexdumpContentProvider.s_instance = this;
@@ -26,7 +24,7 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
 
     public dispose() {
         this._onDidChange.dispose();
-        if(HexdumpContentProvider.s_instance) {
+        if (HexdumpContentProvider.s_instance) {
             HexdumpContentProvider.s_instance.dispose();
             HexdumpContentProvider.s_instance = null;
         }
@@ -34,62 +32,66 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
 
     public provideTextDocumentContent(uri: vscode.Uri): Thenable<string> {
         const config = vscode.workspace.getConfiguration('hexdump');
-        const hexLineLength = config['width'] * 2;
-        const firstByteOffset = config['showAddress'] ? 10 : 0;
-        const lastByteOffset = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-        const firstAsciiOffset = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
-        const lastAsciiOffset = firstAsciiOffset + config['width'];
-        const charPerLine = lastAsciiOffset + 1;
         const sizeWarning = config['sizeWarning'];
-        const sizeDisplay = config['sizeDisplay'];
 
         return new Promise( async (resolve) => {
-            let hexyFmt = {
-                format      : config['nibbles'] == 8 ? 'eights' : 
-                            config['nibbles'] == 4 ? 'fours' : 
-                            'twos',
-                width       : config['width'],
-                caps        : config['uppercase'] ? 'upper' : 'lower',
-                numbering   : config['showAddress'] ? "hex_digits" : "none",
-                annotate    : config['showAscii'] ? "ascii" : "none",
-                length      : sizeDisplay
-            };
+            const entry = await getEntry(uri);
+            const format = entry.format;
+            const header = format.showOffset ? this.getHeader(format) : '';
+            const tail = "(Reached the maximum size to display. You can change `hexdump.sizeDisplay` in your settings.)";
 
-            let header = config['showOffset'] ? this.getHeader() : "";
-            let tail = '(Reached the maximum size to display. You can change "hexdump.sizeDisplay" in your settings.)';
-
-            let proceed = getFileSize(uri) < sizeWarning ? 'Open' : await vscode.window.showWarningMessage('File might be too big, are you sure you want to continue?', 'Open');
-            if (proceed == 'Open') {
-                let buf = getBuffer(uri);
-                let hexString = header;
-                hexString += hexdump.hexy(buf, hexyFmt).toString();
-                if (buf.length > sizeDisplay) {
-                    hexString += tail;
-                }
-
-                return resolve(hexString);
+            if (entry.isDeleted || !entry.data) {
+                return resolve("the file has been deleted");
             } else {
-                return resolve('(hexdump cancelled.)');
+                const proceed =
+                    entry.data.byteLength < sizeWarning
+                        ? 'Open'
+                        : await vscode.window.showWarningMessage(
+                            "File might be too big, are you sure you want to continue?",
+                            { modal: true },
+                            'Open',
+                            'Cancel'
+                        );
+                if (proceed == 'Open') {
+                    let hexString = header;
+                    hexString += hexy.hexy(entry.data, getHexyFormat(format)).toString();
+                    if (entry.data.length > format.sizeDisplay) {
+                        hexString += tail;
+                    }
+                    return resolve(hexString);
+                } else {
+                    return resolve("(hexdump cancelled.)");
+                }
             }
         });
     }
-    
+
     get onDidChange(): vscode.Event<vscode.Uri> {
         return this._onDidChange.event;
     }
-    
+
     public update(uri: vscode.Uri) {
         this._onDidChange.fire(uri);
     }
 
-    private getHeader(): string {
-        const config = vscode.workspace.getConfiguration('hexdump');
-        let header = config['showAddress'] ? "  Offset: " : "";
+    private getHeader(format: Format): string {
+        let header = format.showAddress ? "  Offset:" : "";
+        let line_width = format.width;
+        let group_size = format.nibbles / 2;
+        let radix = format.radix;
+        let littleEndian = format.littleEndian;
+        let group_len = hexy.maxnumberlen(group_size, radix);
 
-        for (var i = 0; i < config['width']; ++i) {
-            header += sprintf('%02X', i);
-            if ((i+1) % (config['nibbles'] / 2) == 0) {
-                header += ' ';
+        for (let group = 0; group < line_width / group_size; group++) {
+            header += " ".repeat(1 + group_len - (group_size * 2));
+            for (let ii = 0; ii < group_size; ii++) {
+                let column = group * group_size;
+                if (littleEndian) {
+                    column += group_size - ii - 1;
+                } else {
+                    column += ii;
+                }
+                header += column.toString(16).padStart(2, "0");
             }
         }
 
