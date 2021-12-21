@@ -155,6 +155,7 @@ export interface IEntry {
 
 // this map contains info of the known files, indexed by their names
 const _files = new Map<string, IEntry>();
+let _memento: vscode.Memento;
 
 
 function getDefaultFormat(): Format {
@@ -192,7 +193,7 @@ export function getHexyFormat(format: Format): HexyFormat {
 
 // updates the stored info about the file and the cached data
 // usually happens when the file changes externally
-async function resetFile(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean, watcher?: vscode.FileSystemWatcher) {
+async function resetFile(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean, watcher?: vscode.FileSystemWatcher, storedFormat?: Format) {
     let data: Buffer = undefined;
     try {
         if (!isDeleted) {
@@ -206,7 +207,7 @@ async function resetFile(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean, 
         data: data,
         isDirty: isDirty,
         isDeleted: isDeleted,
-        format: (_files.has(uri.toString()) && _files.get(uri.toString()).format) ? _files.get(uri.toString()).format : getDefaultFormat(),
+        format: (_files.has(uri.toString()) && _files.get(uri.toString()).format) ? _files.get(uri.toString()).format : storedFormat,
         watcher: watcher ? watcher : (_files.has(uri.toString())) ? _files.get(uri.toString()).watcher : undefined,
         decorations: (_files.has(uri.toString())) ? _files.get(uri.toString()).decorations : undefined
     };
@@ -216,6 +217,25 @@ async function resetFile(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean, 
 async function onChange(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean) {
     await resetFile(uri, isDirty, isDeleted);
     HexdumpContentProvider.instance.update(fakeUri(uri));
+}
+
+export function initMemento(context: vscode.ExtensionContext) {
+    _memento = context.workspaceState;
+}
+
+// just a string-with-funny-characters to a string-without-funny-characters conversion
+// doesn't have to be secure or terribly unique either: as long as it's repeatable, we're good
+function simpleHash(s: string): string {
+    let result = s.split('').reduce( (hash, ch) => {
+        hash = (hash << 3) ^ (hash << 1) ^ ch.charCodeAt(0);
+        return hash & hash; // make sure it stays int32
+    }, 0);
+    return result.toString(16);
+}
+
+// calculates a key used for storing format data for a file
+function storageKey(uri: vscode.Uri): string {
+    return 'files-' + simpleHash(uri.toString());
 }
 
 export async function getEntry(hexdumpUri: vscode.Uri): Promise<IEntry> {
@@ -235,7 +255,8 @@ export async function getEntry(hexdumpUri: vscode.Uri): Promise<IEntry> {
                 await onChange(uri, false, true);
             });
 
-            await resetFile(physicalUri, false, false, watcher); // adds the entry to the `_files`
+            const storedFormat = _memento.get<Format>(storageKey(physicalUri), getDefaultFormat());
+            await resetFile(physicalUri, false, false, watcher, storedFormat); // adds the entry to the `_files`
         }
         return _files.get(physicalUri.toString());
     }
@@ -243,11 +264,13 @@ export async function getEntry(hexdumpUri: vscode.Uri): Promise<IEntry> {
 }
 
 export function onDocumentClosed(doc: vscode.TextDocument) {
-    const uri = realUri(doc.uri).toString();
-    if (_files.has(uri) && _files.get(uri).watcher) {
-        _files.get(uri).watcher.dispose();
+    const uri = realUri(doc.uri);
+    const path = uri.toString();
+    if (_files.has(path) && _files.get(path).watcher) {
+        _memento.update(storageKey(uri), _files.get(path).format);
+        _files.get(path).watcher.dispose();
     }
-    _files.delete(uri);
+    _files.delete(path);
 }
 
 export function triggerUpdateDecorations(e: vscode.TextEditor) {

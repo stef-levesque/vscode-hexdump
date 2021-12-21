@@ -7,15 +7,20 @@ details:
 * Context Menu: added convenient switch of displaying between 1, 2, 4 and 8 byte words
 * New Fx: added ability to display bytes as binary, octal, decimal and hexadecimal
 * New Fx (issue #59): each file can have its own view settings
+* New Fx: the file view settings are now persistent through the app sessions
 * Context Menu: the above functionality is also accessible via the context menu
 * Bugfix: endiannes was always set to "big", regardless of the UI setting in multi-byte displaying
 * Bugfix: fixed the meaning of endiannes that was incorrectly displayed in the status bar
 * Bugfix: the popup tooltip was showing value of the sequence starting with the byte under cursor, as opposed to the value displayed under the cursor.  This change doesn't affect the 2-nibble (one byte) display mode (need before and after screenshots)
 * Bugfix (#79): better tracking of externally modified and deleted files
 * Bugfix (#77): correctly handling tab closure and therefore removing incorrect data persistency through tab closure and reopening
+* Fixes in hover window:
+  * corrected offset calculation for LE mode
+  * Int64 and Uint64 values were always the same regardless the position of the cursor
+  * Int64 and Uint64 were swapped around: uint was read as signed, and int was read as unsigned
 * Build: fixed build by providing `null` arguments into `resolve()` -- the method requires one argument now
 * Dependency: now depending on hexy 0.3.4, which supports endianness and radix
-* Dependency: no longer depending on `clipboardly` and native `fs` object -- replaced by vscode's alternatives that work better (some of the bugfixes above are attributed to this)
+* Dependency: no longer depending on `clipboardly`, `sprintf-js`, and native `fs` objects -- replaced by vscode's alternatives that work better (some of the bugfixes above are attributed to this)
 * Fit and Finish: removed the "Show Hexdump" menu items from hexdump tabs
 * Version: updated version number
 

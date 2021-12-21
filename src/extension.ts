@@ -6,14 +6,16 @@ import * as MemoryMap from 'nrf-intel-hex';
 import HexdumpContentProvider from './contentProvider';
 import HexdumpHoverProvider from './hoverProvider';
 import HexdumpStatusBar from './statusBar';
-import { getEntry, getOffset, getPosition, getRanges, triggerUpdateDecorations, onDocumentClosed, getBufferSelection, realUri, fakeUri } from './util';
+import { getEntry, getOffset, getPosition, getRanges, triggerUpdateDecorations, onDocumentClosed, getBufferSelection, initMemento, realUri, fakeUri } from './util';
 
 export function activate(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration('hexdump');
     const charEncoding: BufferEncoding = config['charEncoding'];
     const btnEnabled: string = config['btnEnabled'];
 
-    let statusBar = new HexdumpStatusBar();
+    initMemento(context);
+
+    const statusBar = new HexdumpStatusBar();
     context.subscriptions.push(statusBar);
 
     const smallDecorationType = vscode.window.createTextEditorDecorationType({
