@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+const hexy = require('hexy');
 
 import HexdumpContentProvider from './contentProvider';
 
-export function fakeUri(uri: vscode.Uri): vscode.Uri { // TODO: would be great not to do that at all
+export function fakeUri(uri: vscode.Uri): vscode.Uri {
     if (uri.scheme === 'hexdump') {
         return uri;
     }
@@ -26,73 +27,79 @@ export function realUri(uri: vscode.Uri): vscode.Uri {
     return uri;
 }
 
-export function getOffset(pos: vscode.Position): number { // TODO: handle 8 byte (16 nibbles) mode, and LE mode
-    const config = vscode.workspace.getConfiguration('hexdump');
-    const firstLine: number = config['showOffset'] ? 1 : 0;
-    const hexLineLength: number = config['width'] * 2;
-    const firstByteOffset: number = config['showAddress'] ? 10 : 0;
-    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    const firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
+// calculates the offset (in bytes) in the file
+// that corresponds to the given position in the view
+// this is opposite of `getPosition()`
+export function getOffset(entry: IEntry, pos: vscode.Position): number {
+    const f = entry.format;
+    const firstLine: number = f.showOffset ? 1 : 0;
+    const hexLineLength: number = f.width * 2;
+    const firstByteOffset: number = f.showAddress ? 10 : 0;
+    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / f.nibbles - 1;
+    const nibbleSize: number = hexy.maxnumberlen(f.nibbles / 2, f.radix);
+
+    // the following line is compensating for inconsistency
+    // in `hexy`: the gap between hex and ascii is:
+    //            * 4 space chars in 1 byte (2 nibbles) mode
+    //            * 2 space chars in all other modes
+    const firstAsciiOffset: number = lastByteOffset + (f.nibbles == 2 ? 4 : 2);
 
     // check if within a valid section
     if (pos.line < firstLine || pos.character < firstByteOffset) {
         return;
     }
 
-    let offset = (pos.line - firstLine) * config['width'];
-    const s = pos.character - firstByteOffset;
-    if (pos.character >= firstByteOffset && pos.character <= lastByteOffset) {
-        // byte section
-        if (config['nibbles'] == 8) {
-            offset += Math.floor(s / 9) + Math.floor((s + 2) / 9) + Math.floor((s + 4) / 9) + Math.floor((s + 6) / 9);
-        } else if (config['nibbles'] == 4) {
-            offset += Math.floor(s / 5) + Math.floor((s + 2) / 5);
-        } else {
-            offset += Math.floor(s / 3);
+    let offset = (pos.line - firstLine) * f.width;
+    if (pos.character >= firstByteOffset && pos.character <= lastByteOffset) { // calculating from the hex column
+        const s = pos.character - firstByteOffset;
+        const group = Math.floor(s / (nibbleSize + 1));
+        let nibble = 0;
+        if (f.radix == 16 && f.nibbles > 2) { // the byte position within the group only makes sense in HEX mode
+            nibble = s - group * (nibbleSize + 1);
+            if (f.littleEndian) {
+                nibble = f.nibbles - nibble - 1;
+            }
         }
-    } else if (pos.character >= firstAsciiOffset) {
-        // ascii section
+        offset += Math.floor((group * f.nibbles + nibble) / 2);
+    } else if (pos.character >= firstAsciiOffset) { // calculating from the text column
         offset += pos.character - firstAsciiOffset;
     }
     return offset;
 }
 
-export function getPosition(offset: number, ascii: Boolean = false): vscode.Position {
-    const config = vscode.workspace.getConfiguration('hexdump');
-    const firstLine: number = config['showOffset'] ? 1 : 0;
-    const hexLineLength: number = config['width'] * 2;
-    const firstByteOffset: number = config['showAddress'] ? 10 : 0;
-    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    const firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
+// calculates the position within the view
+// that corresponds to the given offset in the file
+// this is opposite of `getOffset()`
+export function getPosition(entry: IEntry, offset: number, ascii: Boolean = false): vscode.Position {
+    const f = entry.format;
+    const firstLine: number = f.showOffset ? 1 : 0;
+    const hexLineLength: number = f.width * 2;
+    const firstByteOffset: number = f.showAddress ? 10 : 0;
+    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / f.nibbles - 1;
+    const firstAsciiOffset: number = lastByteOffset + (f.nibbles == 2 ? 4 : 2);
 
-    let row = firstLine + Math.floor(offset / config['width']);
-    let column = offset % config['width'];
+    let row = firstLine + Math.floor(offset / f.width);
+    let column = offset % f.width;
 
     if (ascii) {
         column += firstAsciiOffset;
     } else {
-        if (config['nibbles'] == 8) {
-            column = firstByteOffset + column * 2 + Math.floor(column / 4);
-        } else if (config['nibbles'] == 4) {
-            column = firstByteOffset + column * 2 + Math.floor(column / 2);
-        } else {
-            column = firstByteOffset + column * 3;
-        }
+        column = firstByteOffset + column * 2 + Math.floor(column / (f.nibbles / 2));
     }
 
     return new vscode.Position(row, column);
 }
 
-export function getRanges(startOffset: number, endOffset: number, ascii: boolean): vscode.Range[] {
-    const config = vscode.workspace.getConfiguration('hexdump');
-    const hexLineLength: number = config['width'] * 2;
-    const firstByteOffset: number = config['showAddress'] ? 10 : 0;
-    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / config['nibbles'] - 1;
-    const firstAsciiOffset: number = lastByteOffset + (config['nibbles'] == 2 ? 4 : 2);
-    const lastAsciiOffset: number = firstAsciiOffset + config['width'];
+export function getRanges(entry: IEntry, startOffset: number, endOffset: number, ascii: boolean): vscode.Range[] {
+    const f = entry.format;
+    const hexLineLength: number = f.width * 2;
+    const firstByteOffset: number = f.showAddress ? 10 : 0;
+    const lastByteOffset: number = firstByteOffset + hexLineLength + hexLineLength / f.nibbles - 1;
+    const firstAsciiOffset: number = lastByteOffset + (f.nibbles == 2 ? 4 : 2);
+    const lastAsciiOffset: number = firstAsciiOffset + f.width;
 
-    const startPos = getPosition(startOffset, ascii);
-    let endPos = getPosition(endOffset, ascii);
+    const startPos = getPosition(entry, startOffset, ascii);
+    let endPos = getPosition(entry, endOffset, ascii);
     endPos = new vscode.Position(endPos.line, endPos.character + (ascii ? 1 : 2));
 
     let ranges = [];
@@ -107,12 +114,16 @@ export function getRanges(startOffset: number, endOffset: number, ascii: boolean
     return ranges;
 }
 
+
+// describes how a file is displayed.
+// most of these fields are passed to `hexy` via `HexyFormat`
 export interface Format {
     nibbles     : number,
     radix       : number,
     littleEndian: boolean,
     width       : number,
     uppercase   : boolean,
+    showOffset  : boolean, // doesn't correspond to anything in HexyFormat: the offset line is purely our construct
     showAddress : boolean,
     showAscii   : boolean,
     sizeDisplay : number
@@ -131,6 +142,8 @@ export interface HexyFormat {
     length      : number
 };
 
+// `IEntry` contains information about a particular viewed file
+// all the instances of `IEntry` live in `_files` map
 export interface IEntry {
     data        : Uint8Array;
     isDirty     : boolean;
@@ -140,7 +153,8 @@ export interface IEntry {
     decorations?: vscode.Range[]; 
 }
 
-const _files = new Map<string, IEntry>(); // this map contains the contents of the known files indexed by their names
+// this map contains info of the known files, indexed by their names
+const _files = new Map<string, IEntry>();
 
 
 function getDefaultFormat(): Format {
@@ -151,6 +165,7 @@ function getDefaultFormat(): Format {
         littleEndian: config['littleEndian'],
         width       : config['width'],
         uppercase   : config['uppercase'],
+        showOffset  : config['showOffset'],
         showAddress : config['showAddress'],
         showAscii   : config['showAscii'],
         sizeDisplay : config['sizeDisplay']
@@ -175,6 +190,8 @@ export function getHexyFormat(format: Format): HexyFormat {
     return result;
 }
 
+// updates the stored info about the file and the cached data
+// usually happens when the file changes externally
 async function resetFile(uri: vscode.Uri, isDirty: boolean, isDeleted: boolean, watcher?: vscode.FileSystemWatcher) {
     let data: Buffer = undefined;
     try {
@@ -244,8 +261,8 @@ export async function getBufferSelection(document: vscode.TextDocument, selectio
     }
 
     if (selection && !selection.isEmpty) {
-        let start = getOffset(selection.start);
-        let end = getOffset(selection.end) + 1;
+        let start = getOffset(entry, selection.start);
+        let end = getOffset(entry, selection.end) + 1;
         return Buffer.from(entry.data.slice(start, end));
     }
 

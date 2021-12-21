@@ -1,8 +1,6 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import { sprintf } from 'sprintf-js';
 import * as MemoryMap from 'nrf-intel-hex';
 
 import HexdumpContentProvider from './contentProvider';
@@ -52,20 +50,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.window.onDidChangeTextEditorSelection(async e => {
         if (e && e.textEditor.document.languageId === 'hexdump') {
+            const entry = await getEntry(e.textEditor.document.uri);
             let numLine = e.textEditor.document.lineCount
             if (e.selections[0].start.line + 1 == numLine ||
                 e.selections[0].end.line + 1 == numLine) {
                     e.textEditor.setDecorations(smallDecorationType, []);
                     return;
                 }
-            let startOffset = getOffset(e.selections[0].start);
-            let endOffset = getOffset(e.selections[0].end);
+            let startOffset = getOffset(entry, e.selections[0].start);
+            let endOffset = getOffset(entry, e.selections[0].end);
             if (typeof startOffset == 'undefined' || typeof endOffset == 'undefined') {
                 e.textEditor.setDecorations(smallDecorationType, []);
                 return;
             }
 
-            const entry = await getEntry(e.textEditor.document.uri);
             if (!entry.isDeleted && entry.data) {
                 if (startOffset >= entry.data.length) {
                     startOffset = entry.data.length - 1;
@@ -75,9 +73,9 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
 
-            let ranges = getRanges(startOffset, endOffset, false);
+            let ranges = getRanges(entry, startOffset, endOffset, false);
             if (config['showAscii']) {
-                ranges = ranges.concat(getRanges(startOffset, endOffset, true));
+                ranges = ranges.concat(getRanges(entry, startOffset, endOffset, true));
             }
             e.textEditor.setDecorations(smallDecorationType, ranges);
         }
@@ -167,15 +165,14 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
+        const entry = await getEntry(d.uri);
         let pos = e.selection.start;
-        let offset = getOffset(pos);
+        let offset = getOffset(entry, pos);
         if (typeof offset == 'undefined') {
             return;
         }
 
-        const entry = await getEntry(d.uri);
         const buf = entry.data;
-
         if (offset >= buf.length || pos.line + 1 == d.lineCount) {
             return;
         }
@@ -183,7 +180,7 @@ export function activate(context: vscode.ExtensionContext) {
         const ibo = <vscode.InputBoxOptions> {
             prompt: "Enter value in hexadecimal",
             placeHolder: "value",
-            value: sprintf('%02X', buf[offset])
+            value: buf[offset].toString(16).padStart(2, "0")
         };
 
         vscode.window.showInputBox(ibo).then(value => {
@@ -214,11 +211,11 @@ export function activate(context: vscode.ExtensionContext) {
                 entry.decorations = [];
             }
 
-            getRanges(offset, offset + bytes.length - 1, false).forEach(range => {
+            getRanges(entry, offset, offset + bytes.length - 1, false).forEach(range => {
                 entry.decorations.push(range);
             });
             if (config['showAscii']) {
-                getRanges(offset, offset + bytes.length - 1, true).forEach(range => {
+                getRanges(entry, offset, offset + bytes.length - 1, true).forEach(range => {
                     entry.decorations.push(range);
                 });
             }
@@ -231,7 +228,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('hexdump.gotoAddress', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('hexdump.gotoAddress', async () => {
         let e = vscode.window.activeTextEditor;
         let d = e.document;
         // check if hexdump document
@@ -239,7 +236,8 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        let offset = getOffset(e.selection.start);
+        const entry = await getEntry(d.uri);
+        let offset = getOffset(entry, e.selection.start);
         if (typeof offset == 'undefined') {
             offset = 0;
         }
@@ -247,10 +245,10 @@ export function activate(context: vscode.ExtensionContext) {
         const ibo = <vscode.InputBoxOptions> {
             prompt: "Enter value in hexadecimal",
             placeHolder: "address",
-            value: sprintf('%08X', offset)
+            value: offset.toString(16).padStart(8, "0")
         };
 
-        vscode.window.showInputBox(ibo).then(value => {
+        vscode.window.showInputBox(ibo).then(async value => {
             if (typeof value == 'undefined') {
                 return;
             }
@@ -258,9 +256,10 @@ export function activate(context: vscode.ExtensionContext) {
             if (isNaN(offset)) {
                 return;
             }
+            const entry = await getEntry(d.uri);
 
             // Translate one to be in the middle of the byte
-            const pos = e.document.validatePosition(getPosition(offset).translate(0, 1));
+            const pos = e.document.validatePosition(getPosition(entry, offset).translate(0, 1));
             e.selection = new vscode.Selection(pos, pos);
             e.revealRange(new vscode.Range(pos, pos));
         });
@@ -405,7 +404,8 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        let offset = getOffset(e.selection.start);
+        const entry = await getEntry(d.uri);
+        let offset = getOffset(entry, e.selection.start);
         if (typeof offset == 'undefined') {
             offset = 0;
         }
@@ -427,7 +427,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.setStatusBarMessage("string not found", 3000);
             } else {
                 // Translate one to be in the middle of the byte
-                const pos = e.document.validatePosition(getPosition(index).translate(0, 1));
+                const pos = e.document.validatePosition(getPosition(entry, index).translate(0, 1));
                 e.selection = new vscode.Selection(pos, pos);
                 e.revealRange(new vscode.Range(pos, pos));
             }
@@ -442,7 +442,8 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const offset: number = getOffset(e.selection.start) || 0;
+        const entry = await getEntry(d.uri);
+        const offset: number = getOffset(entry, e.selection.start) || 0;
 
         const ibo = <vscode.InputBoxOptions>{
             prompt: "Enter HEX string to search",
@@ -464,8 +465,7 @@ export function activate(context: vscode.ExtensionContext) {
             const byte = hexString.substr(i * 2, 2);
             searchBuf.writeUInt8(parseInt(byte, 16), i);
         }
-
-        const index = Buffer.from((await getEntry(d.uri)).data).indexOf(searchBuf, offset);
+        const index = Buffer.from(entry.data).indexOf(searchBuf, offset);
 
         if (index == -1) {
             vscode.window.setStatusBarMessage("HEX string not found", 3000);
@@ -473,7 +473,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         // Translate one to be in the middle of the byte
-        const pos = e.document.validatePosition(getPosition(index).translate(0, 1));
+        const pos = e.document.validatePosition(getPosition(entry, index).translate(0, 1));
         e.selection = new vscode.Selection(pos, pos);
         e.revealRange(new vscode.Range(pos, pos));
     }));
@@ -610,9 +610,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand('hexdump.copyAsIntelHex', async () => {
         let e = vscode.window.activeTextEditor;
+        const entry = await getEntry(e.document.uri);
         let buffer = await getBufferSelection(e.document, e.selection);
         if (buffer) {
-            let address = e.selection.isEmpty ? 0 : getOffset(e.selection.start);
+            let address = e.selection.isEmpty ? 0 : getOffset(entry, e.selection.start);
             let memMap = new MemoryMap();
             memMap.set(address, buffer);
             await vscode.env.clipboard.writeText(memMap.asHexString());

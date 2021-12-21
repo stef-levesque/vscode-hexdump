@@ -1,7 +1,6 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { sprintf } from 'sprintf-js';
 
 import { getEntry, Format, getHexyFormat } from './util';
 
@@ -38,7 +37,7 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
         return new Promise( async (resolve) => {
             const entry = await getEntry(uri);
             const format = entry.format;
-            const header = format.showAddress ? this.getHeader(format) : '';
+            const header = format.showOffset ? this.getHeader(format) : '';
             const tail = "(Reached the maximum size to display. You can change `hexdump.sizeDisplay` in your settings.)";
 
             if (entry.isDeleted || !entry.data) {
@@ -61,7 +60,7 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
                     }
                     return resolve(hexString);
                 } else {
-                    return resolve("(hexdump cancelled.)"); // TODO: remove this by only coverting the visible part + delta
+                    return resolve("(hexdump cancelled.)");
                 }
             }
         });
@@ -92,7 +91,7 @@ export default class HexdumpContentProvider implements vscode.TextDocumentConten
                 } else {
                     column += ii;
                 }
-                header += sprintf("%02X", column);
+                header += column.toString(16).padStart(2, "0");
             }
         }
 
